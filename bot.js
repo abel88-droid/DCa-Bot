@@ -14,7 +14,7 @@ client.on('ready', () => {
 
 client.on('guildMemberAdd', member => {
   // Use the raw channel ID (without <# >)
-  const welcomeChannel = member.guild.channels.cache.get('123988029002'); // Replace with your actual channel ID
+  const welcomeChannel = member.guild.channels.cache.get('1239879910118654016'); // Replace with your actual channel ID
 
   if (welcomeChannel) {
     welcomeChannel.send(`**Welcome <@${member.id}>** 🤗
