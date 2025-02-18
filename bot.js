@@ -33,14 +33,3 @@ If you want access to Discord Driver main other channel, please contact your lea
 
 // Log in to Discord with the bot token
 client.login(process.env.DISCORD_TOKEN);
-const express = require('express');
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-app.get('/', (req, res) => {
-  res.send('Bot is running!');
-});
-
-app.listen(PORT, () => {
-  console.log(`Server is live at http://localhost:${PORT}`);
-});
