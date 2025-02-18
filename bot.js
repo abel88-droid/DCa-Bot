@@ -13,12 +13,11 @@ client.on('ready', () => {
 });
 
 client.on('guildMemberAdd', member => {
-  // Get the channel to send the welcome message
-  const channel = member.guild.systemChannel;
-  
-  // Make sure the channel is available and the bot has permission to send messages
-  if (channel) {
-    channel.send(`**Welcome <@${member.id}>** 🤗
+  // Use the raw channel ID (without <# >)
+  const welcomeChannel = member.guild.channels.cache.get('123988029002'); // Replace with your actual channel ID
+
+  if (welcomeChannel) {
+    welcomeChannel.send(`**Welcome <@${member.id}>** 🤗
 
 If you **haven't** read the <#1239880290026000385>, please do.
 There is an explanation of the different roles in here too. Read them here <#1340644055855399005>.
@@ -28,6 +27,8 @@ There are more channels than you can see. Go to <#1239880291523366942> and selec
 If you want access to Discord Driver main other channel, please contact your leaders.
 
 **Hope you will have fun in DC driver Alliance** 👍`);
+  } else {
+    console.error("Bot cannot find the specified welcome channel!");
   }
 });
 
