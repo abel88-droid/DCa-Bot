@@ -1,14 +1,11 @@
-const { Client } = require('pg');
+const { Pool } = require('pg');
+require('dotenv').config();
 
-const client = new Client({
-    connectionString: process.env.DATABASE_URL, // Use environment variables for security
-    ssl: {
-        rejectUnauthorized: false
-    }
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }  // Needed for Railway
 });
 
-client.connect()
-    .then(() => console.log('Connected to PostgreSQL'))
-    .catch(err => console.error('Connection error', err));
-
-module.exports = client;
+module.exports = {
+  query: (text, params) => pool.query(text, params),
+};
