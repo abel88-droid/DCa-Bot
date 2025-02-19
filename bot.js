@@ -9,54 +9,64 @@ const client = new Client({
   ]
 });
 
-const YOUTUBE_CHANNEL_IDS = [
-  'UCyL-QGEkA1r7R7U5rN_Yonw', // Replace with YouTuber 1's channel ID
-  'UC16xML3oyIZDeF3g8nnV6MA', // Replace with YouTuber 2's channel ID
-  'UCF0iJo2klF-QGxzDDmOkQbQ'  // Add more as needed
-];
+const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY; // YouTube API Key
+const CHECK_INTERVAL = 60000; // Check interval (1 minute)
 
-const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY; // Store your YouTube API key in the .env file
-const CHECK_INTERVAL = 60000; // Time interval (1 minute)
+// YouTube channels mapped to specific Discord channels
+const YOUTUBE_CHANNELS = {
+  "UCyL-QGEkA1r7R7U5rN_Yonw": "123456789012345678", // YouTuber 1 → Channel A
+  "UC16xML3oyIZDeF3g8nnV6MA": "123456789012345678", // YouTuber 2 → Channel A
+  "UCF0iJo2klF-QGxzDDmOkQbQ": "234567890123456789", // YouTuber 3 → Channel B
+  "UC1234567890abcdefg": "345678901234567890", // Remaining YouTuber → Channel C
+  "UC234567890abcdefg": "345678901234567890",
+  "UC345678901abcdefg": "345678901234567890",
+  "UC456789012abcdefg": "345678901234567890",
+  "UC567890123abcdefg": "345678901234567890",
+  "UC678901234abcdefg": "345678901234567890",
+};
 
-let lastVideoIds = {}; // Object to store last video IDs for each channel
+let lastVideoIds = {}; // Store last video IDs
 
 async function checkForNewVideo() {
   try {
-    for (const channelId of YOUTUBE_CHANNEL_IDS) {
+    for (const [youtubeChannelId, discordChannelId] of Object.entries(YOUTUBE_CHANNELS)) {
       const response = await axios.get("https://www.googleapis.com/youtube/v3/search", {
         params: {
           key: YOUTUBE_API_KEY,
-          channelId: channelId,
-          part: 'snippet',
-          order: 'date',
-          maxResults: 1
-        }
+          channelId: youtubeChannelId,
+          part: "snippet",
+          order: "date",
+          maxResults: 1,
+        },
       });
 
       const video = response.data.items[0];
-      if (!video || !video.id.videoId) continue;
+      if (!video || !video.id.videoId) continue; // Skip if no video found
 
       const videoId = video.id.videoId;
       const videoTitle = video.snippet.title;
       const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
 
-      // Check if a new video has been uploaded for this channel
-      if (videoId !== lastVideoIds[channelId]) {
-        lastVideoIds[channelId] = videoId;
+      // Check if it's a new video
+      if (channel) {
+  channel.send(`**${video.snippet.channelTitle}** uploaded a new YouTube video!\n${videoUrl}`);
+      }
 
-        // Send the new video link to a specific channel
-        const channel = client.channels.cache.get('1341719063780393031'); // Replace with your actual channel ID
+        // Fetch the correct Discord channel and send the message
+        const channel = client.channels.cache.get(discordChannelId);
         if (channel) {
-          channel.send(`New video uploaded by **${video.snippet.channelTitle}**: **${videoTitle}**\nWatch it here: ${videoUrl}`);
+          channel.send(`🎥 **New video from ${video.snippet.channelTitle}:**\n📌 **${videoTitle}**\n▶️ Watch here: ${videoUrl}`);
+        } else {
+          console.error(`Could not find channel ID: ${discordChannelId}`);
         }
       }
     }
   } catch (error) {
-    console.error('Error fetching YouTube data:', error);
+    console.error("Error fetching YouTube data:", error);
   }
 }
 
-client.on('ready', () => {
+client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
   setInterval(checkForNewVideo, CHECK_INTERVAL);
 });
@@ -92,5 +102,5 @@ client.on('guildMemberRemove', member => {
   }
 });
 
-// Log in to Discord with the bot token
+// Log in to Discord
 client.login(process.env.DISCORD_TOKEN);
