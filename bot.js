@@ -1,4 +1,5 @@
 const { Client, GatewayIntentBits } = require('discord.js');
+const axios = require('axios');
 require('dotenv').config();
 
 const client = new Client({
@@ -8,13 +9,62 @@ const client = new Client({
   ]
 });
 
+const YOUTUBE_CHANNEL_IDS = [
+  'UCyL-QGEkA1r7R7U5rN_Yonw', // Replace with YouTuber 1's channel ID
+  'UC16xML3oyIZDeF3g8nnV6MA', // Replace with YouTuber 2's channel ID
+  'UCF0iJo2klF-QGxzDDmOkQbQ'  // Add more as needed
+];
+const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY; // Store your YouTube API key in the .env file
+const CHECK_INTERVAL = 60000; // Time interval (in milliseconds) to check for new videos (1 minute)
+
+let lastVideoIds = {}; // Object to store last video IDs for each channel
+
+async function checkForNewVideo() {
+  try {
+    for (const channelId of YOUTUBE_CHANNEL_IDS) {
+      // Make a request to the YouTube Data API to get the latest videos from the channel
+      const response = await axios.get(`https://www.googleapis.com/youtube/v3/search`, {
+        params: {
+          key: YOUTUBE_API_KEY,
+          channelId: channelId,
+          part: 'snippet',
+          order: 'date',
+          maxResults: 1
+        }
+      });
+
+      const video = response.data.items[0];
+      const videoId = video.id.videoId;
+      const videoTitle = video.snippet.title;
+      const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
+
+      // Check if a new video has been uploaded for this channel
+      if (videoId !== lastVideoIds[channelId]) {
+        lastVideoIds[channelId]) {
+        lastVideoIds[channelId] = videoId;
+
+        // Send the new video link to a specific channel
+        const channel = client.channels.cache.get('1341719063780393031'); // Replace with the channel ID where you want to send the video
+        if (channel) {
+          channel.send(`New video uploaded by YouTuber **${video.snippet.channelTitle}**: **${videoTitle}**\nWatch it here: ${videoUrl}`);
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching YouTube data:', error);
+  }
+}
+
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
+
+  // Start checking for new videos at regular intervals
+  setInterval(checkForNewVideo, CHECK_INTERVAL);
 });
 
 // Member Join Message
 client.on('guildMemberAdd', member => {
-  const welcomeChannel = member.guild.channels.cache.get('1341567042880278548'); // Replace with your actual channel ID
+  const welcomeChannel = member.guild.channels.cache.get('1239879910118654016'); // Replace with your actual channel ID
 
   if (welcomeChannel) {
     welcomeChannel.send(`**Welcome <@${member.id}>** 🤗
@@ -45,3 +95,5 @@ client.on('guildMemberRemove', member => {
 
 // Log in to Discord with the bot token
 client.login(process.env.DISCORD_TOKEN);
+  }
+}
