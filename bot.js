@@ -12,8 +12,8 @@ client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
 });
 
+// Member Join Message
 client.on('guildMemberAdd', member => {
-  // Use the raw channel ID (without <# >)
   const welcomeChannel = member.guild.channels.cache.get('1239879910118654016'); // Replace with your actual channel ID
 
   if (welcomeChannel) {
@@ -29,6 +29,17 @@ If you want access to Discord Driver main other channel, please contact your lea
 **Hope you will have fun in DC driver Alliance** 👍`);
   } else {
     console.error("Bot cannot find the specified welcome channel!");
+  }
+});
+
+// Member Leave Message
+client.on('guildMemberRemove', member => {
+  const leavingChannel = member.guild.channels.cache.get('1341566528989958266'); // Replace with actual channel ID
+
+  if (leavingChannel) {
+    leavingChannel.send(`**${member.user.tag}** Left **DC driver Alliance**`);
+  } else {
+    console.error("Bot cannot find the specified leaving channel!");
   }
 });
 
