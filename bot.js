@@ -14,7 +14,7 @@ client.on('ready', () => {
 
 // Member Join Message
 client.on('guildMemberAdd', member => {
-  const welcomeChannel = member.guild.channels.cache.get('1239879910118654016'); // Replace with your actual channel ID
+  const welcomeChannel = member.guild.channels.cache.get('1341567042880278548'); // Replace with your actual channel ID
 
   if (welcomeChannel) {
     welcomeChannel.send(`**Welcome <@${member.id}>** 🤗
