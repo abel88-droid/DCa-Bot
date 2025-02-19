@@ -47,18 +47,12 @@ async function checkForNewVideo() {
       const videoTitle = video.snippet.title;
       const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
 
-      // Check if it's a new video
+      // Fetch the correct Discord channel
+      const channel = client.channels.cache.get(discordChannelId);
       if (channel) {
-  channel.send(`**${video.snippet.channelTitle}** uploaded a new YouTube video!\n${videoUrl}`);
-      }
-
-        // Fetch the correct Discord channel and send the message
-        const channel = client.channels.cache.get(discordChannelId);
-        if (channel) {
-          channel.send(`🎥 **New video from ${video.snippet.channelTitle}:**\n📌 **${videoTitle}**\n▶️ Watch here: ${videoUrl}`);
-        } else {
-          console.error(`Could not find channel ID: ${discordChannelId}`);
-        }
+        channel.send(`🎥 **New video from ${video.snippet.channelTitle}:**\n📌 **${videoTitle}**\n▶️ Watch here: ${videoUrl}`);
+      } else {
+        console.error(`Could not find channel ID: ${discordChannelId}`);
       }
     }
   } catch (error) {
