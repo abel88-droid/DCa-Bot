@@ -14,15 +14,15 @@ const CHECK_INTERVAL = 60000; // Check interval (1 minute)
 
 // YouTube channels mapped to specific Discord channels
 const YOUTUBE_CHANNELS = {
-  "UCyL-QGEkA1r7R7U5rN_Yonw": "123456789012345678", // YouTuber 1 → Channel A
-  "UC16xML3oyIZDeF3g8nnV6MA": "123456789012345678", // YouTuber 2 → Channel A
-  "UCF0iJo2klF-QGxzDDmOkQbQ": "234567890123456789", // YouTuber 3 → Channel B
-  "UC1234567890abcdefg": "345678901234567890", // Remaining YouTuber → Channel C
-  "UC234567890abcdefg": "345678901234567890",
-  "UC345678901abcdefg": "345678901234567890",
-  "UC456789012abcdefg": "345678901234567890",
-  "UC567890123abcdefg": "345678901234567890",
-  "UC678901234abcdefg": "345678901234567890",
+  "UCyL-QGEkA1r7R7U5rN_Yonw": "1341719063780393031", // YouTuber 1 → Channel A
+  "UC16xML3oyIZDeF3g8nnV6MA": "1341719063780393031", // YouTuber 2 → Channel A
+  "UCnCaLcVf4YsPcsvi6PE4m6A": "1341733821707452437", // YouTuber 3 → Channel B
+  "UCBrnPp4lpRukfuvXUiRz6_A": "1341719134135779389", // Remaining YouTuber → Channel C
+  "UC_Sn3iTUicORvNCieX-AqzQ": "1341719134135779389",
+  "UCwxuNdbZ-nK5oUEeY1tY9CQ": "1341719134135779389",
+  "UCBHmJJ0PN-efNW5PFdJ4EDQ": "1341719134135779389",
+  "UCv_5HRU2ctFoYNeWFGLNoXw": "1341719134135779389",
+  "UCF0iJo2klF-QGxzDDmOkQbQ": "1341719134135779389",
 };
 
 let lastVideoIds = {}; // Store last video IDs
