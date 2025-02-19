@@ -1,5 +1,6 @@
 const { Client, GatewayIntentBits, PermissionsBitField } = require('discord.js');
 const axios = require('axios');
+const { pool } = require('./database');
 require('dotenv').config();
 
 const client = new Client({
@@ -18,12 +19,7 @@ const YOUTUBE_CHANNELS = {
   "UCyL-QGEkA1r7R7U5rN_Yonw": "1341719063780393031", 
   "UC16xML3oyIZDeF3g8nnV6MA": "1341719063780393031", 
   "UCnCaLcVf4YsPcsvi6PE4m6A": "1341733821707452437", 
-  "UCBrnPp4lpRukfuvXUiRz6_A": "1341719134135779389", 
-  "UC_Sn3iTUicORvNCieX-AqzQ": "1341719134135779389",
-  "UCwxuNdbZ-nK5oUEeY1tY9CQ": "1341719134135779389",
-  "UCBHmJJ0PN-efNW5PFdJ4EDQ": "1341719134135779389",
-  "UCv_5HRU2ctFoYNeWFGLNoXw": "1341719134135779389",
-  "UCF0iJo2klF-QGxzDDmOkQbQ": "1341719134135779389",
+  "UCBrnPp4lpRukfuvXUiRz6_A": "1341719134135779389"
 };
 
 let lastVideoIds = {};
@@ -121,11 +117,24 @@ client.on("messageCreate", async (message) => {
   }
 
   if (command === "-warn") {
-    message.reply("Warning system is not yet implemented.");
+    if (!message.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) return message.reply("You don't have permission!");
+    const user = message.mentions.users.first();
+    const reason = args.slice(1).join(" ") || "No reason provided";
+
+    if (!user) return message.reply("Please mention a user to warn.");
+
+    await pool.query("INSERT INTO warnings (user_id, reason, timestamp) VALUES ($1, $2, NOW())", [user.id, reason]);
+    message.channel.send(`${user.tag} has been warned. Reason: ${reason}`);
   }
 
   if (command === "-warnings") {
-    message.reply("Warning retrieval system is not yet implemented.");
+    const user = message.mentions.users.first() || message.author;
+    const { rows } = await pool.query("SELECT reason, timestamp FROM warnings WHERE user_id = $1", [user.id]);
+
+    if (rows.length === 0) return message.reply(`${user.tag} has no warnings.`);
+    
+    const warningsList = rows.map((w, i) => `**${i + 1}.** ${w.reason} - *${w.timestamp.toDateString()}*`).join("\n");
+    message.channel.send(`Warnings for **${user.tag}**:\n${warningsList}`);
   }
 
   if (command === "-whois") {
@@ -151,17 +160,25 @@ client.on("messageCreate", async (message) => {
   }
 });
 
-client.on('guildMemberAdd', member => {
-  const welcomeChannel = member.guild.channels.cache.get('1239879910118654016');
-  if (welcomeChannel) {
-    welcomeChannel.send(`Welcome <@${member.id}>! Please check the rules and role selection.`);
-  }
+client.on('guildMemberAdd', async (member) => {
+  const welcomeChannel = member.guild.channels.cache.get('1239879910118654016'); 
+  if (!welcomeChannel) return;
+
+  const welcomeMessage = `**Welcome <@${member.id}> 👋🏻**\n\n` +
+    `If you **haven't** read the <#1239880290026000385>, please do.\n` +
+    `There is an explanation of the different roles in here too. Read them here <#1340644055855399005>.\n\n` +
+    `There are more channels than you can see.\n` +
+    `Go to <#1239880291523366942> and select/deselect them.\n\n` +
+    `If you want access to Discord Driver main other channel, please contact your leaders.\n\n` +
+    `**Hope you will have fun in DC driver Alliance** 👍`;
+
+  welcomeChannel.send(welcomeMessage);
 });
 
 client.on('guildMemberRemove', member => {
   const leavingChannel = member.guild.channels.cache.get('1341566528989958266');
   if (leavingChannel) {
-    leavingChannel.send(`${member.user.tag} left the server.`);
+    leavingChannel.send(`**${member.user.tag}** left the server.`);
   }
 });
 
