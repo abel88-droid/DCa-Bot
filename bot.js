@@ -14,16 +14,16 @@ const YOUTUBE_CHANNEL_IDS = [
   'UC16xML3oyIZDeF3g8nnV6MA', // Replace with YouTuber 2's channel ID
   'UCF0iJo2klF-QGxzDDmOkQbQ'  // Add more as needed
 ];
+
 const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY; // Store your YouTube API key in the .env file
-const CHECK_INTERVAL = 60000; // Time interval (in milliseconds) to check for new videos (1 minute)
+const CHECK_INTERVAL = 60000; // Time interval (1 minute)
 
 let lastVideoIds = {}; // Object to store last video IDs for each channel
 
 async function checkForNewVideo() {
   try {
     for (const channelId of YOUTUBE_CHANNEL_IDS) {
-      // Make a request to the YouTube Data API to get the latest videos from the channel
-      const response = await axios.get(`https://www.googleapis.com/youtube/v3/search`, {
+      const response = await axios.get("https://www.googleapis.com/youtube/v3/search", {
         params: {
           key: YOUTUBE_API_KEY,
           channelId: channelId,
@@ -34,19 +34,20 @@ async function checkForNewVideo() {
       });
 
       const video = response.data.items[0];
+      if (!video || !video.id.videoId) continue;
+
       const videoId = video.id.videoId;
       const videoTitle = video.snippet.title;
       const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
 
       // Check if a new video has been uploaded for this channel
       if (videoId !== lastVideoIds[channelId]) {
-        lastVideoIds[channelId]) {
         lastVideoIds[channelId] = videoId;
 
         // Send the new video link to a specific channel
-        const channel = client.channels.cache.get('1341719063780393031'); // Replace with the channel ID where you want to send the video
+        const channel = client.channels.cache.get('1341719063780393031'); // Replace with your actual channel ID
         if (channel) {
-          channel.send(`New video uploaded by YouTuber **${video.snippet.channelTitle}**: **${videoTitle}**\nWatch it here: ${videoUrl}`);
+          channel.send(`New video uploaded by **${video.snippet.channelTitle}**: **${videoTitle}**\nWatch it here: ${videoUrl}`);
         }
       }
     }
@@ -57,8 +58,6 @@ async function checkForNewVideo() {
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
-
-  // Start checking for new videos at regular intervals
   setInterval(checkForNewVideo, CHECK_INTERVAL);
 });
 
@@ -95,5 +94,3 @@ client.on('guildMemberRemove', member => {
 
 // Log in to Discord with the bot token
 client.login(process.env.DISCORD_TOKEN);
-  }
-}
