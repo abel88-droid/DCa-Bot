@@ -1,185 +1,81 @@
-const { Client, GatewayIntentBits, PermissionsBitField } = require('discord.js');
-const axios = require('axios');
-const { pool } = require('./database');
-require('dotenv').config();
+const { Client, GatewayIntentBits } = require("discord.js");
+require("dotenv").config();
+const db = require("./database.js");
+const { addYouTubeVideo } = require("./youtube.js");
 
-const client = new Client({
-  intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMembers,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent
-  ]
+const client = new Client({ 
+    intents: [
+        GatewayIntentBits.Guilds, 
+        GatewayIntentBits.GuildMessages, 
+        GatewayIntentBits.GuildMembers
+    ] 
 });
 
-const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
-const CHECK_INTERVAL = 60000;
+client.once("ready", () => {
+    console.log(`✅ Logged in as ${client.user.tag}`);
+});
 
-const YOUTUBE_CHANNELS = {
-  "UCyL-QGEkA1r7R7U5rN_Yonw": "1341719063780393031", 
-  "UC16xML3oyIZDeF3g8nnV6MA": "1341719063780393031", 
-  "UCnCaLcVf4YsPcsvi6PE4m6A": "1341733821707452437", 
-  "UCBrnPp4lpRukfuvXUiRz6_A": "1341719134135779389"
-};
-
-let lastVideoIds = {};
-
-async function checkForNewVideo() {
-  try {
-    for (const [youtubeChannelId, discordChannelId] of Object.entries(YOUTUBE_CHANNELS)) {
-      const response = await axios.get("https://www.googleapis.com/youtube/v3/search", {
-        params: {
-          key: YOUTUBE_API_KEY,
-          channelId: youtubeChannelId,
-          part: "snippet",
-          order: "date",
-          maxResults: 1,
-        },
-      });
-
-      const video = response.data.items[0];
-      if (!video || !video.id.videoId) continue;
-
-      const videoId = video.id.videoId;
-      const channelName = video.snippet.channelTitle;
-      const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
-
-      if (lastVideoIds[youtubeChannelId] === videoId) continue;
-      lastVideoIds[youtubeChannelId] = videoId;
-
-      const discordChannel = client.channels.cache.get(discordChannelId);
-      if (discordChannel) {
-        discordChannel.send(`(${channelName}) uploaded a new YouTube video!\n${videoUrl}`);
-      }
+// Welcome Message
+client.on("guildMemberAdd", member => {
+    const welcomeChannel = member.guild.channels.cache.get("1239879910118654016"); // Correct welcome channel ID
+    if (welcomeChannel) {
+        welcomeChannel.send(
+            `👋 Welcome **<@${member.id}>**!\n\n` +
+            `If you **haven't** read the <#1239880290026000385> yet, please do. ` +
+            `There is an explanation of the different roles in <#1340644055855399005>. ` +
+            `More channels can be unlocked in <#1239880291523366942>.\n\n` +
+            `Hope you will have **fun** in DC Driver Alliance! 👍`
+        );
     }
-  } catch (error) {
-    console.error("Error fetching YouTube data:", error);
-  }
-}
-
-client.on("ready", () => {
-  console.log(`Logged in as ${client.user.tag}!`);
-  setInterval(checkForNewVideo, CHECK_INTERVAL);
 });
 
-client.on("messageCreate", async (message) => {
-  if (message.author.bot || !message.guild) return;
+// Leaving Message
+client.on("guildMemberRemove", member => {
+    const leaveChannel = member.guild.channels.cache.get("1341566528989958266"); // Correct leaving channel ID
+    if (leaveChannel) {
+        leaveChannel.send(`**${member.user.tag}** Left **DC Driver Alliance**`);
+    }
+});
 
-  const args = message.content.split(" ");
-  const command = args.shift().toLowerCase();
-
-  if (command === "-ban") {
-    if (!message.member.permissions.has(PermissionsBitField.Flags.BanMembers)) return message.reply("You don't have permission!");
-    const user = message.mentions.members.first();
-    const reason = args.slice(1).join(" ") || "No reason provided";
-    let days = 0;
+client.on("messageCreate", async message => {
+    if (!message.content.startsWith("-") || message.author.bot) return;
     
-    const daysArgIndex = args.findIndex(arg => arg.startsWith("-ddays"));
-    if (daysArgIndex !== -1 && args[daysArgIndex + 1]) {
-      days = parseInt(args[daysArgIndex + 1]) || 0;
+    const args = message.content.slice(1).trim().split(/ +/);
+    const command = args.shift().toLowerCase();
+
+    if (command === "ban") {
+        if (!message.member.permissions.has("BAN_MEMBERS")) return message.reply("❌ You don't have permission!");
+        const user = message.mentions.members.first();
+        if (!user) return message.reply("⚠️ Please mention a user.");
+        const reason = args.slice(1).join(" ") || "No reason provided.";
+        await user.ban({ reason });
+        message.channel.send(`🔨 <@${user.id}> has been banned! Reason: ${reason}`);
     }
 
-    if (user) {
-      await user.ban({ days, reason });
-      message.channel.send(`${user.user.tag} has been banned. Reason: ${reason}`);
-    } else {
-      message.reply("Please mention a user to ban.");
-    }
-  }
-
-  if (command === "-unban") {
-    if (!message.member.permissions.has(PermissionsBitField.Flags.BanMembers)) return message.reply("You don't have permission!");
-    const userId = args[0];
-    const reason = args.slice(1).join(" ") || "No reason provided";
-    
-    message.guild.bans.fetch().then(bans => {
-      const bannedUser = bans.get(userId);
-      if (bannedUser) {
-        message.guild.members.unban(userId, reason);
-        message.channel.send(`${bannedUser.user.tag} has been unbanned.`);
-      } else {
-        message.reply("This user is not banned.");
-      }
-    });
-  }
-
-  if (command === "-kick") {
-    if (!message.member.permissions.has(PermissionsBitField.Flags.KickMembers)) return message.reply("You don't have permission!");
-    const user = message.mentions.members.first();
-    const reason = args.slice(1).join(" ") || "No reason provided";
-
-    if (user) {
-      await user.kick(reason);
-      message.channel.send(`${user.user.tag} has been kicked. Reason: ${reason}`);
-    } else {
-      message.reply("Please mention a user to kick.");
-    }
-  }
-
-  if (command === "-warn") {
-    if (!message.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) return message.reply("You don't have permission!");
-    const user = message.mentions.users.first();
-    const reason = args.slice(1).join(" ") || "No reason provided";
-
-    if (!user) return message.reply("Please mention a user to warn.");
-
-    await pool.query("INSERT INTO warnings (user_id, reason, timestamp) VALUES ($1, $2, NOW())", [user.id, reason]);
-    message.channel.send(`${user.tag} has been warned. Reason: ${reason}`);
-  }
-
-  if (command === "-warnings") {
-    const user = message.mentions.users.first() || message.author;
-    const { rows } = await pool.query("SELECT reason, timestamp FROM warnings WHERE user_id = $1", [user.id]);
-
-    if (rows.length === 0) return message.reply(`${user.tag} has no warnings.`);
-    
-    const warningsList = rows.map((w, i) => `**${i + 1}.** ${w.reason} - *${w.timestamp.toDateString()}*`).join("\n");
-    message.channel.send(`Warnings for **${user.tag}**:\n${warningsList}`);
-  }
-
-  if (command === "-whois") {
-    const user = message.mentions.members.first() || message.member;
-    const joinDate = user.joinedAt.toDateString();
-    message.channel.send(`${user.user.tag} joined on ${joinDate}.`);
-  }
-
-  if (command === "-clean") {
-    if (!message.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) return message.reply("You don't have permission!");
-    const amount = parseInt(args[0]);
-    const noPin = args.includes("-nopin");
-
-    if (isNaN(amount) || amount < 1 || amount > 100) {
-      return message.reply("Please provide a number between 1 and 100.");
+    if (command === "unban") {
+        if (!message.member.permissions.has("BAN_MEMBERS")) return message.reply("❌ You don't have permission!");
+        const userId = args[0];
+        if (!userId) return message.reply("⚠️ Provide the user ID.");
+        await message.guild.bans.remove(userId);
+        message.channel.send(`✅ User with ID **${userId}** has been unbanned.`);
     }
 
-    const messages = await message.channel.messages.fetch({ limit: amount });
-    const filteredMessages = noPin ? messages.filter(m => !m.pinned) : messages;
+    if (command === "kick") {
+        if (!message.member.permissions.has("KICK_MEMBERS")) return message.reply("❌ You don't have permission!");
+        const user = message.mentions.members.first();
+        if (!user) return message.reply("⚠️ Please mention a user.");
+        const reason = args.slice(1).join(" ") || "No reason provided.";
+        await user.kick(reason);
+        message.channel.send(`👢 <@${user.id}> has been kicked! Reason: ${reason}`);
+    }
 
-    await message.channel.bulkDelete(filteredMessages, true);
-    message.channel.send(`Deleted ${filteredMessages.size} messages.`);
-  }
+    if (command === "clean") {
+        if (!message.member.permissions.has("MANAGE_MESSAGES")) return message.reply("❌ You don't have permission!");
+        const deleteCount = parseInt(args[0]);
+        if (isNaN(deleteCount) || deleteCount < 1 || deleteCount > 100) return message.reply("⚠️ Provide a number between 1-100.");
+        const messages = await message.channel.bulkDelete(deleteCount, true);
+        message.channel.send(`🧹 Deleted **${messages.size}** messages!`).then(msg => setTimeout(() => msg.delete(), 3000));
+    }
 });
 
-client.on('guildMemberAdd', async (member) => {
-  const welcomeChannel = member.guild.channels.cache.get('1239879910118654016'); 
-  if (!welcomeChannel) return;
-
-  const welcomeMessage = `**Welcome <@${member.id}> 👋🏻**\n\n` +
-    `If you **haven't** read the <#1239880290026000385>, please do.\n` +
-    `There is an explanation of the different roles in here too. Read them here <#1340644055855399005>.\n\n` +
-    `There are more channels than you can see.\n` +
-    `Go to <#1239880291523366942> and select/deselect them.\n\n` +
-    `If you want access to Discord Driver main other channel, please contact your leaders.\n\n` +
-    `**Hope you will have fun in DC driver Alliance** 👍`;
-
-  welcomeChannel.send(welcomeMessage);
-});
-
-client.on('guildMemberRemove', member => {
-  const leavingChannel = member.guild.channels.cache.get('1341566528989958266');
-  if (leavingChannel) {
-    leavingChannel.send(`**${member.user.tag}** left the server.`);
-  }
-});
-
-client.login(process.env.DISCORD_TOKEN);
+client.login(process.env.TOKEN);
