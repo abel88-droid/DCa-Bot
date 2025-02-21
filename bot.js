@@ -43,7 +43,7 @@ client.on("messageCreate", async message => {
     const args = message.content.slice(1).trim().split(/ +/);
     const command = args.shift().toLowerCase();
 
-    if (command === "ban") {
+    if (command === "-ban") {
         if (!message.member.permissions.has("BAN_MEMBERS")) return message.reply("❌ You don't have permission!");
         const user = message.mentions.members.first();
         if (!user) return message.reply("⚠️ Please mention a user.");
@@ -52,7 +52,7 @@ client.on("messageCreate", async message => {
         message.channel.send(`🔨 <@${user.id}> has been banned! Reason: ${reason}`);
     }
 
-    if (command === "unban") {
+    if (command === "-unban") {
         if (!message.member.permissions.has("BAN_MEMBERS")) return message.reply("❌ You don't have permission!");
         const userId = args[0];
         if (!userId) return message.reply("⚠️ Provide the user ID.");
@@ -60,7 +60,7 @@ client.on("messageCreate", async message => {
         message.channel.send(`✅ User with ID **${userId}** has been unbanned.`);
     }
 
-    if (command === "kick") {
+    if (command === "-kick") {
         if (!message.member.permissions.has("KICK_MEMBERS")) return message.reply("❌ You don't have permission!");
         const user = message.mentions.members.first();
         if (!user) return message.reply("⚠️ Please mention a user.");
@@ -69,7 +69,7 @@ client.on("messageCreate", async message => {
         message.channel.send(`👢 <@${user.id}> has been kicked! Reason: ${reason}`);
     }
 
-    if (command === "clean") {
+    if (command === "-clean") {
         if (!message.member.permissions.has("MANAGE_MESSAGES")) return message.reply("❌ You don't have permission!");
         const deleteCount = parseInt(args[0]);
         if (isNaN(deleteCount) || deleteCount < 1 || deleteCount > 100) return message.reply("⚠️ Provide a number between 1-100.");
