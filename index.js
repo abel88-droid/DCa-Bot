@@ -9,11 +9,11 @@ const client = new Client({
 });
 
 // Event Handlers
-const guildMemberAdd = require("./events/guildMemberAdd.js");
-const guildMemberRemove = require("./events/guildMemberRemove.js");
+const guildMemberAdd = require("./events/guildMemberAdd");
+const guildMemberRemove = require("./events/guildMemberRemove");
 
-client.on("guildMemberAdd", guildMemberAdd);
-client.on("guildMemberRemove", guildMemberRemove);
+client.on("guildMemberAdd", guildMemberAdd.execute);
+client.on("guildMemberRemove", guildMemberRemove.execute);
 
 // Command Handler
 client.on("messageCreate", async message => {
