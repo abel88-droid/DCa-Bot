@@ -21,7 +21,7 @@ module.exports = {
 
         try {
             await user.ban({ reason });
-            message.channel.send(`${user.user.tag} has been banned. Reason: ${reason}`);
+            message.channel.send(`**${user.user.tag**} has been banned. **Reason**: *${reason}*`);
         } catch (error) {
             console.error(error);
             message.reply("I was unable to ban the member.");
