@@ -1,37 +1,18 @@
 const { Client, GatewayIntentBits } = require("discord.js");
-require("dotenv").config();
-const client = new Client({
-    intents: [
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.GuildMembers
-    ]
-});
+const fs = require("fs");
+const path = require("path");
 
-// Event Handlers
-const guildMemberAdd = require("./events/guildMemberAdd");
-const guildMemberRemove = require("./events/guildMemberRemove");
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
 
-client.on("guildMemberAdd", guildMemberAdd.execute);
-client.on("guildMemberRemove", guildMemberRemove.execute);
+// Load events
+const eventsPath = path.join(__dirname, "events");
+const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith(".js"));
 
-// Command Handler
-client.on("messageCreate", async message => {
-    if (!message.content.startsWith("-") || message.author.bot) return;
-
-    const args = message.content.slice(1).trim().split(/ +/);
-    const command = args.shift().toLowerCase();
-
-    try {
-        const commandFile = require(`./commands/${command}.js`);
-        await commandFile.execute(message, args);
-    } catch (err) {
-        console.log(`❌ Unknown command: ${command}`);
+for (const file of eventFiles) {
+    const event = require(`./events/${file}`);
+    if (event.name && event.execute) {
+        client.on(event.name, (...args) => event.execute(...args));
     }
-});
+}
 
-client.once("ready", () => {
-    console.log(`✅ Logged in as ${client.user.tag}`);
-});
-
-client.login(process.env.DISCORD_TOKEN);
+client.login(process.env.TOKEN);
