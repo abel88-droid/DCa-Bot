@@ -2,28 +2,38 @@ const { PermissionsBitField } = require("discord.js");
 
 module.exports = {
   name: "unban",
-  description: "Unbans a user from the server",
+  description: "Unbans a user from the server using their ID or username",
   async execute(message, args) {
-    if (!message.member.permissions.has("BAN_MEMBERS")) {
-      return message.reply("You do not have permission to use this command.");
+    if (!message.member.permissions.has(PermissionsBitField.Flags.BanMembers)) {
+      return message.reply("🚫 You do not have permission to use this command.");
     }
 
-    const userId = args[0]; // Expecting a user ID
-    if (!userId) return message.reply("Please provide a valid user ID.");
+    if (!args[0]) {
+      return message.reply("❌ Please provide a user ID or username.");
+    }
 
     try {
-      const bans = await message.guild.bans.fetch();
-      console.log(bans); // Debugging: Log the fetched bans
+      const bans = await message.guild.bans.fetch(); // Fetch all bans
 
-      if (!bans.has(userId)) {
-        return message.reply("This user is not banned.");
+      // Check if the input is a user ID
+      let bannedUser = bans.get(args[0]);
+
+      // If no ID match, search by username
+      if (!bannedUser) {
+        bannedUser = [...bans.values()].find(ban => ban.user.username.toLowerCase() === args[0].toLowerCase());
       }
 
-      await message.guild.bans.remove(userId);
-      message.reply(`Successfully unbanned <@${userId}>.`);
+      // If user is not found in the ban list
+      if (!bannedUser) {
+        return message.reply("⚠️ This user is not banned or does not exist.");
+      }
+
+      // Unban the user
+      await message.guild.bans.remove(bannedUser.user.id);
+      message.reply(`✅ Successfully unbanned **${bannedUser.user.tag}**.`);
     } catch (error) {
       console.error(error);
-      message.reply("An error occurred while trying to unban the user.");
+      message.reply("❌ An error occurred while trying to unban the user.");
     }
   },
 };
