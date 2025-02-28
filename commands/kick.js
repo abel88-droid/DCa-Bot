@@ -20,7 +20,7 @@ module.exports = {
     const reason = args.slice(1).join(" ") || "No reason provided";
 
     member.kick(reason)
-      .then(() => message.reply(`✅ Successfully kicked **${member.user.tag}**. Reason: ${reason}`))
+      .then(() => message.reply(`Successfully kicked **${member.user.tag}**. Reason: ${reason}`))
       .catch(error => {
         console.error(error);
         message.reply("An error occurred while trying to kick the user.");
