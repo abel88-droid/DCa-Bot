@@ -1,12 +1,13 @@
-const { Client, Intents, Collection } = require("discord.js");
+const { Client, GatewayIntentBits, Collection } = require("discord.js");
 const fs = require("fs");
 require("dotenv").config();
 
 const client = new Client({
     intents: [
-        Intents.FLAGS.GUILDS,
-        Intents.FLAGS.GUILD_MESSAGES,
-        Intents.FLAGS.GUILD_MEMBERS
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.MessageContent
     ]
 });
 
@@ -19,11 +20,17 @@ for (const file of commandFiles) {
     client.commands.set(command.name, command);
 }
 
-// Load events dynamically (welcome and leaving messages)
-const eventFiles = fs.readdirSync("./events").filter(file => file.endsWith(".js"));
+// Event handlers for welcome and leaving messages
+const eventsPath = "./events";
+const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith(".js"));
+
 for (const file of eventFiles) {
     const event = require(`./events/${file}`);
-    client.on(event.name, (...args) => event.execute(...args, client));
+    if (event.once) {
+        client.once(event.name, (...args) => event.execute(...args, client));
+    } else {
+        client.on(event.name, (...args) => event.execute(...args, client));
+    }
 }
 
 // Command handler
