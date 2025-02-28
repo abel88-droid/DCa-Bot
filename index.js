@@ -1,5 +1,6 @@
 const { Client, GatewayIntentBits, Collection } = require("discord.js");
 const fs = require("fs");
+const path = require("path");
 require("dotenv").config();
 
 const client = new Client({
@@ -7,6 +8,7 @@ const client = new Client({
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.GuildBans, // Required for unban command
         GatewayIntentBits.MessageContent
     ]
 });
@@ -14,23 +16,47 @@ const client = new Client({
 client.commands = new Collection();
 
 // Load commands dynamically
-const commandFiles = fs.readdirSync("./commands").filter(file => file.endsWith(".js"));
-for (const file of commandFiles) {
-    const command = require(`./commands/${file}`);
-    client.commands.set(command.name, command);
+const commandsPath = path.join(__dirname, "commands");
+if (fs.existsSync(commandsPath)) {
+    const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith(".js"));
+    for (const file of commandFiles) {
+        try {
+            const command = require(`./commands/${file}`);
+            if (command.name) {
+                client.commands.set(command.name, command);
+            } else {
+                console.warn(`⚠️ Command file ${file} is missing a name property.`);
+            }
+        } catch (error) {
+            console.error(`❌ Error loading command file ${file}:`, error);
+        }
+    }
+} else {
+    console.warn("⚠️ 'commands' folder not found. No commands loaded.");
 }
 
-// Event handlers for welcome and leaving messages
-const eventsPath = "./events";
-const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith(".js"));
-
-for (const file of eventFiles) {
-    const event = require(`./events/${file}`);
-    if (event.once) {
-        client.once(event.name, (...args) => event.execute(...args, client));
-    } else {
-        client.on(event.name, (...args) => event.execute(...args, client));
+// Load event handlers (welcome and leave messages)
+const eventsPath = path.join(__dirname, "events");
+if (fs.existsSync(eventsPath)) {
+    const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith(".js"));
+    for (const file of eventFiles) {
+        try {
+            const event = require(`./events/${file}`);
+            if (event.name) {
+                if (event.once) {
+                    client.once(event.name, (...args) => event.execute(...args, client));
+                } else {
+                    client.on(event.name, (...args) => event.execute(...args, client));
+                }
+            } else {
+                console.warn(`⚠️ Event file ${file} is missing a name property.`);
+            }
+        } catch (error) {
+            console.error(`❌ Error loading event file ${file}:`, error);
+        }
     }
+} else {
+    console.warn("⚠️ 'events' folder not found. No event handlers loaded.");
 }
 
 // Command handler
@@ -39,15 +65,20 @@ client.on("messageCreate", async message => {
 
     const args = message.content.slice(1).trim().split(/ +/);
     const commandName = args.shift().toLowerCase();
+    const command = client.commands.get(commandName);
 
-    if (!client.commands.has(commandName)) return;
+    if (!command) return;
 
     try {
-        await client.commands.get(commandName).execute(message, args);
+        await command.execute(message, args);
     } catch (error) {
-        console.error(error);
-        message.reply("There was an error executing this command.");
+        console.error(`❌ Error executing command ${commandName}:`, error);
+        message.reply("❌ There was an error executing this command.");
     }
+});
+
+client.once("ready", () => {
+    console.log(`✅ Logged in as ${client.user.tag}!`);
 });
 
 client.login(process.env.TOKEN);
