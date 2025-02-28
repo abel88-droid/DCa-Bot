@@ -13,10 +13,14 @@ module.exports = {
     }
 
     try {
-      const deletedMessages = await message.channel.bulkDelete(amount, true);
-      message.channel.send(`✅ Deleted **${deletedMessages.size}** messages.`).then(msg => {
-        setTimeout(() => msg.delete(), 3000);
-      });
+      await message.channel.bulkDelete(amount, true);
+      
+      setTimeout(() => {
+        message.channel.send(`✅ Deleted **${amount}** messages.`).then(msg => {
+          setTimeout(() => msg.delete(), 3000);
+        });
+      }, 1000); // Delay sending the confirmation message to prevent deletion
+
     } catch (error) {
       console.error(error);
       message.reply("An error occurred while trying to delete messages.");
