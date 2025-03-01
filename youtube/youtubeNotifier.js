@@ -1,10 +1,10 @@
 const { Client, GatewayIntentBits } = require("discord.js");
 const Parser = require("rss-parser");
+const path = require("path");
 const fs = require("fs");
 if (!fs.existsSync(path.join(__dirname, "youtube"))) {
   fs.mkdirSync(path.join(__dirname, "youtube"), { recursive: true });
 }
-const path = require("path");
 const SENT_VIDEOS_FILE = sentVideosPath;
 require("dotenv").config();
 
