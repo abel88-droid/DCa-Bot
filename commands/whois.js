@@ -1,4 +1,5 @@
 const { EmbedBuilder, ActivityType } = require("discord.js");
+const moment = require("moment");
 
 module.exports = {
   name: "whois",
@@ -10,9 +11,21 @@ module.exports = {
     const createdAt = `<t:${Math.floor(user.createdTimestamp / 1000)}:f>`;
     const joinedAt = member ? `<t:${Math.floor(member.joinedTimestamp / 1000)}:f>` : "Couldn't find out";
 
-    // Log presence data to check if status is available
-    console.log(`Presence Data for ${user.username}:`, member?.presence?.activities);
+    // Calculate Account Age
+    const now = moment();
+    const createdMoment = moment(user.createdAt);
+    const duration = moment.duration(now.diff(createdMoment));
+    const accountAge = `${duration.years()} years ${duration.weeks()} weeks and ${duration.hours()} hours`;
 
+    // Calculate Server Join Age
+    let joinServerAge = "Couldn't find out";
+    if (member) {
+      const joinedMoment = moment(member.joinedAt);
+      const joinDuration = moment.duration(now.diff(joinedMoment));
+      joinServerAge = `${joinDuration.years()} years ${joinDuration.weeks()} weeks and ${joinDuration.hours()} hours`;
+    }
+
+    // Handle Custom Status
     let customStatus = "No custom status";
     if (member && member.presence && member.presence.activities.length > 0) {
       const customActivity = member.presence.activities.find(act => act.type === ActivityType.Custom);
@@ -28,9 +41,9 @@ module.exports = {
         { name: "ID", value: user.id, inline: true },
         { name: "Avatar", value: `[Link](${user.displayAvatarURL({ dynamic: true, size: 1024 })})`, inline: true },
         { name: "Account Created", value: createdAt, inline: true },
-        { name: "Account Age", value: `<t:${Math.floor(user.createdTimestamp / 1000)}:R>`, inline: true },
+        { name: "Account Age", value: accountAge, inline: true },
         { name: "Joined Server At", value: joinedAt, inline: true },
-        { name: "Join Server Age", value: member ? `<t:${Math.floor(member.joinedTimestamp / 1000)}:R>` : "Couldn't find out", inline: true },
+        { name: "Join Server Age", value: joinServerAge, inline: true },
         { name: "Status", value: customStatus, inline: false }
       )
       .setColor("Blue");
