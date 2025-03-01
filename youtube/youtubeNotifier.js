@@ -1,8 +1,11 @@
 const { Client, GatewayIntentBits } = require("discord.js");
 const Parser = require("rss-parser");
 const fs = require("fs");
+if (!fs.existsSync(path.join(__dirname, "youtube"))) {
+  fs.mkdirSync(path.join(__dirname, "youtube"), { recursive: true });
+}
 const path = require("path");
-const sentVideosPath = path.join(__dirname, "youtube", "sentVideos.json");
+const SENT_VIDEOS_FILE = sentVideosPath;
 require("dotenv").config();
 
 const parser = new Parser();
@@ -45,8 +48,11 @@ async function checkYouTube() {
 
       if (!sentVideos[youtubeId] || sentVideos[youtubeId] !== videoId) {
         sentVideos[youtubeId] = videoId;
-        fs.writeFileSync(SENT_VIDEOS_FILE, JSON.stringify(sentVideos, null, 2));
-
+        try {
+  fs.writeFileSync(SENT_VIDEOS_FILE, JSON.stringify(sentVideos, null, 2));
+} catch (error) {
+  console.error("Error saving sentVideos.json:", error);
+        }
         const channel = client.channels.cache.get(discordChannel);
         if (channel) {
           await channel.send(`**${name}** uploaded a new video!\n${videoUrl}`);
@@ -60,7 +66,7 @@ async function checkYouTube() {
 
 client.once("ready", () => {
   console.log("YouTube Notifier is running...");
-  checkYouTube();
+  setTimeout(() => checkYouTube(), 10000); // Wait 10 seconds before first check
   setInterval(checkYouTube, 5 * 60 * 1000); // Check every 5 minutes
 });
 
