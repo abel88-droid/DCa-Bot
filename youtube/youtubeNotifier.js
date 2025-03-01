@@ -24,8 +24,6 @@ const YOUTUBE_CHANNELS = {
   "UCnCaLcVf4YsPcsvi6PE4m6A": { discordChannel: "1341733821707452437", name: "ChillHcr2Guy" },
 };
 
-// Load sent videos from JSON
-const SENT_VIDEOS_FILE = "./youtube/sentVideos.json";
 let sentVideos = {};
 
 if (fs.existsSync(SENT_VIDEOS_FILE)) {
