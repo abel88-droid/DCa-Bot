@@ -15,8 +15,9 @@ const client = new Client({
 });
 
 client.commands = new Collection();
+client.slashCommands = new Collection();
 
-// Load commands dynamically
+// Load traditional (-) commands
 const commandsPath = path.join(__dirname, "commands");
 if (fs.existsSync(commandsPath)) {
     const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith(".js"));
@@ -33,7 +34,27 @@ if (fs.existsSync(commandsPath)) {
         }
     }
 } else {
-    console.warn("⚠️ 'commands' folder not found. No commands loaded.");
+    console.warn("⚠️ 'commands' folder not found. No text commands loaded.");
+}
+
+// Load slash (/) commands
+const slashCommandsPath = path.join(__dirname, "slashCommands");
+if (fs.existsSync(slashCommandsPath)) {
+    const slashCommandFiles = fs.readdirSync(slashCommandsPath).filter(file => file.endsWith(".js"));
+    for (const file of slashCommandFiles) {
+        try {
+            const command = require(`./slashCommands/${file}`);
+            if (command.data && command.data.name) {
+                client.slashCommands.set(command.data.name, command);
+            } else {
+                console.warn(`⚠️ Slash command file ${file} is missing a name property.`);
+            }
+        } catch (error) {
+            console.error(`❌ Error loading slash command file ${file}:`, error);
+        }
+    }
+} else {
+    console.warn("⚠️ 'slashCommands' folder not found. No slash commands loaded.");
 }
 
 // Load event handlers (welcome and leave messages)
@@ -60,7 +81,7 @@ if (fs.existsSync(eventsPath)) {
     console.warn("⚠️ 'events' folder not found. No event handlers loaded.");
 }
 
-// Command handler
+// Traditional (-) command handler
 client.on("messageCreate", async message => {
     if (!message.content.startsWith("-") || message.author.bot) return;
 
@@ -75,6 +96,21 @@ client.on("messageCreate", async message => {
     } catch (error) {
         console.error(`❌ Error executing command ${commandName}:`, error);
         message.reply("❌ There was an error executing this command.");
+    }
+});
+
+// Slash (/) command handler
+client.on("interactionCreate", async interaction => {
+    if (!interaction.isCommand()) return;
+
+    const command = client.slashCommands.get(interaction.commandName);
+    if (!command) return;
+
+    try {
+        await command.execute(interaction);
+    } catch (error) {
+        console.error(`❌ Error executing slash command ${interaction.commandName}:`, error);
+        interaction.reply({ content: "❌ There was an error executing this command.", ephemeral: true });
     }
 });
 
