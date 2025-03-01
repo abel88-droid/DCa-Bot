@@ -2,12 +2,13 @@ const { Client, GatewayIntentBits } = require("discord.js");
 const Parser = require("rss-parser");
 const path = require("path");
 const fs = require("fs");
+require("dotenv").config();
+
 const SENT_VIDEOS_FILE = "./youtube/sentVideos.json";
+
 if (!fs.existsSync(path.join(__dirname, "youtube"))) {
   fs.mkdirSync(path.join(__dirname, "youtube"), { recursive: true });
 }
-const SENT_VIDEOS_FILE = sentVideosPath;
-require("dotenv").config();
 
 const parser = new Parser();
 const client = new Client({
@@ -48,9 +49,9 @@ async function checkYouTube() {
       if (!sentVideos[youtubeId] || sentVideos[youtubeId] !== videoId) {
         sentVideos[youtubeId] = videoId;
         try {
-  fs.writeFileSync(SENT_VIDEOS_FILE, JSON.stringify(sentVideos, null, 2));
-} catch (error) {
-  console.error("Error saving sentVideos.json:", error);
+          fs.writeFileSync(SENT_VIDEOS_FILE, JSON.stringify(sentVideos, null, 2));
+        } catch (error) {
+          console.error("Error saving sentVideos.json:", error);
         }
         const channel = client.channels.cache.get(discordChannel);
         if (channel) {
