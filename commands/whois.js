@@ -10,6 +10,9 @@ module.exports = {
     const createdAt = `<t:${Math.floor(user.createdTimestamp / 1000)}:f>`;
     const joinedAt = member ? `<t:${Math.floor(member.joinedTimestamp / 1000)}:f>` : "Couldn't find out";
 
+    // Log presence data to check if status is available
+    console.log(`Presence Data for ${user.username}:`, member?.presence?.activities);
+
     let customStatus = "No custom status";
     if (member && member.presence && member.presence.activities.length > 0) {
       const customActivity = member.presence.activities.find(act => act.type === ActivityType.Custom);
