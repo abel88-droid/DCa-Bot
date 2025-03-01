@@ -1,4 +1,4 @@
-let sentVideos = {};
+{}
 
 // Load sent videos from file if it exists
 if (fs.existsSync(SENT_VIDEOS_FILE)) {
