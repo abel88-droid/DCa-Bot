@@ -1,12 +1,16 @@
 let sentVideos = {};
 
 // Load sent videos from file if it exists
-if (fs.existsSync(sentVideosPath)) {
+if (fs.existsSync(SENT_VIDEOS_FILE)) {
   try {
-    const rawData = fs.readFileSync(sentVideosPath);
-    sentVideos = JSON.parse(rawData);
+    const fileContent = fs.readFileSync(SENT_VIDEOS_FILE, "utf8").trim();
+    sentVideos = fileContent ? JSON.parse(fileContent) : {};
   } catch (error) {
     console.error("Error reading sentVideos.json:", error);
+    sentVideos = {};
+    fs.writeFileSync(SENT_VIDEOS_FILE, JSON.stringify(sentVideos, null, 2));
   }
+} else {
+  sentVideos = {};
+  fs.writeFileSync(SENT_VIDEOS_FILE, JSON.stringify(sentVideos, null, 2));
 }
-
