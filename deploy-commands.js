@@ -1,10 +1,10 @@
 const { REST, Routes } = require("discord.js");
 require("dotenv").config();
+const fs = require("fs");
+const path = require("path");
 
 const clientId = "YOUR_BOT_ID"; // Replace with your actual bot ID
 const token = process.env.TOKEN;
-const fs = require("fs");
-const path = require("path");
 
 const commands = [];
 const slashCommandsPath = path.join(__dirname, "commands/slash");
