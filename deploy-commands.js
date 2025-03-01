@@ -3,8 +3,13 @@ require("dotenv").config();
 const fs = require("fs");
 const path = require("path");
 
-const clientId = "YOUR_BOT_ID"; // Replace with your actual bot ID
-const token = process.env.TOKEN;
+const clientId = "1340222971847114762";
+const token = process.env.DISCORD_TOKEN;
+
+if (!token) {
+    console.error("❌ DISCORD_TOKEN is not set in environment variables!");
+    process.exit(1);
+}
 
 const commands = [];
 const slashCommandsPath = path.join(__dirname, "commands/slash");
