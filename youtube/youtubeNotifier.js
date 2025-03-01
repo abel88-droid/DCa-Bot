@@ -1,6 +1,8 @@
 const { Client, GatewayIntentBits } = require("discord.js");
 const Parser = require("rss-parser");
 const fs = require("fs");
+const path = require("path");
+const sentVideosPath = path.join(__dirname, "youtube", "sentVideos.json");
 require("dotenv").config();
 
 const parser = new Parser();
