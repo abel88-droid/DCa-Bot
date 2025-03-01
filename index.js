@@ -2,6 +2,7 @@ const { Client, GatewayIntentBits, Collection } = require("discord.js");
 const fs = require("fs");
 const path = require("path");
 require("dotenv").config();
+require("./youtube/youtubeNotifier.js");
 
 const client = new Client({
     intents: [
