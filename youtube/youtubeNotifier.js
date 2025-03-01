@@ -2,6 +2,7 @@ const { Client, GatewayIntentBits } = require("discord.js");
 const Parser = require("rss-parser");
 const path = require("path");
 const fs = require("fs");
+const SENT_VIDEOS_FILE = "./youtube/sentVideos.json";
 if (!fs.existsSync(path.join(__dirname, "youtube"))) {
   fs.mkdirSync(path.join(__dirname, "youtube"), { recursive: true });
 }
