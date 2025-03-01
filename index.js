@@ -17,35 +17,37 @@ const client = new Client({
 client.commands = new Collection();
 client.slashCommands = new Collection();
 
-// Load traditional (-) commands
-const commandsPath = path.join(__dirname, "commands");
-if (fs.existsSync(commandsPath)) {
-    const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith(".js"));
+// Load traditional (-) commands from "commands/text/"
+const textCommandsPath = path.join(__dirname, "commands", "text");
+if (fs.existsSync(textCommandsPath)) {
+    const commandFiles = fs.readdirSync(textCommandsPath).filter(file => file.endsWith(".js"));
     for (const file of commandFiles) {
         try {
-            const command = require(`./commands/${file}`);
+            const command = require(`./commands/text/${file}`);
             if (command.name) {
                 client.commands.set(command.name, command);
+                console.log(`✅ Loaded text command: ${command.name}`);
             } else {
                 console.warn(`⚠️ Command file ${file} is missing a name property.`);
             }
         } catch (error) {
-            console.error(`❌ Error loading command file ${file}:`, error);
+            console.error(`❌ Error loading text command file ${file}:`, error);
         }
     }
 } else {
-    console.warn("⚠️ 'commands' folder not found. No text commands loaded.");
+    console.warn("⚠️ 'commands/text' folder not found. No text commands loaded.");
 }
 
-// Load slash (/) commands
-const slashCommandsPath = path.join(__dirname, "slashCommands");
+// Load slash (/) commands from "commands/slash/"
+const slashCommandsPath = path.join(__dirname, "commands", "slash");
 if (fs.existsSync(slashCommandsPath)) {
     const slashCommandFiles = fs.readdirSync(slashCommandsPath).filter(file => file.endsWith(".js"));
     for (const file of slashCommandFiles) {
         try {
-            const command = require(`./slashCommands/${file}`);
+            const command = require(`./commands/slash/${file}`);
             if (command.data && command.data.name) {
                 client.slashCommands.set(command.data.name, command);
+                console.log(`✅ Loaded slash command: ${command.data.name}`);
             } else {
                 console.warn(`⚠️ Slash command file ${file} is missing a name property.`);
             }
@@ -54,7 +56,7 @@ if (fs.existsSync(slashCommandsPath)) {
         }
     }
 } else {
-    console.warn("⚠️ 'slashCommands' folder not found. No slash commands loaded.");
+    console.warn("⚠️ 'commands/slash' folder not found. No slash commands loaded.");
 }
 
 // Load event handlers (welcome and leave messages)
@@ -70,6 +72,7 @@ if (fs.existsSync(eventsPath)) {
                 } else {
                     client.on(event.name, (...args) => event.execute(...args, client));
                 }
+                console.log(`✅ Loaded event: ${event.name}`);
             } else {
                 console.warn(`⚠️ Event file ${file} is missing a name property.`);
             }
@@ -114,8 +117,10 @@ client.on("interactionCreate", async interaction => {
     }
 });
 
+// Bot ready event
 client.once("ready", () => {
     console.log(`✅ Logged in as ${client.user.tag}!`);
 });
 
+// Login the bot
 client.login(process.env.TOKEN);
