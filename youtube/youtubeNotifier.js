@@ -31,7 +31,7 @@ const loadSentVideos = () => {
   }
 };
 
-// Save sent videos to file
+
 const saveSentVideos = () => {
   fs.writeFileSync(sentVideosFile, JSON.stringify(sentVideos, null, 2));
 };
