@@ -1,4 +1,4 @@
-const { EmbedBuilder, ActivityType } = require("discord.js");
+const { EmbedBuilder } = require("discord.js");
 
 module.exports = {
   name: "whois",
@@ -9,16 +9,7 @@ module.exports = {
 
     const createdAt = `<t:${Math.floor(user.createdTimestamp / 1000)}:f>`;
     const joinedAt = member ? `<t:${Math.floor(member.joinedTimestamp / 1000)}:f>` : "Couldn't find out";
-
-    // Fetch presence and custom status
-    let customStatus = "No custom status";
-    if (member && member.presence && member.presence.activities.length > 0) {
-      const customActivity = member.presence.activities.find(act => act.type === ActivityType.Custom);
-      if (customActivity && customActivity.state) {
-        customStatus = `Custom Status: "${customActivity.state}"`;
-      }
-    }
-
+    
     const embed = new EmbedBuilder()
       .setTitle(`${user.username}`)
       .setThumbnail(user.displayAvatarURL({ dynamic: true, size: 1024 }))
@@ -29,9 +20,9 @@ module.exports = {
         { name: "Account Age", value: `<t:${Math.floor(user.createdTimestamp / 1000)}:R>`, inline: true },
         { name: "Joined Server At", value: joinedAt, inline: true },
         { name: "Join Server Age", value: member ? `<t:${Math.floor(member.joinedTimestamp / 1000)}:R>` : "Couldn't find out", inline: true },
-        { name: "Status", value: customStatus, inline: false }
-      ) 
-      .setColor("Blue"); 
+        { name: "Status", value: user.presence?.activities[0]?.state || "No custom status", inline: false }
+      )
+      .setColor("Blue");
 
     message.reply({ embeds: [embed] });
   },
