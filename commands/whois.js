@@ -20,7 +20,7 @@ module.exports = {
         { name: "Account Age", value: `<t:${Math.floor(user.createdTimestamp / 1000)}:R>`, inline: true },
         { name: "Joined Server At", value: joinedAt, inline: true },
         { name: "Join Server Age", value: member ? `<t:${Math.floor(member.joinedTimestamp / 1000)}:R>` : "Couldn't find out", inline: true },
-        { name: "Status", value: user.presence?.activities[0]?.state || "No custom status", inline: false }
+        {{ name: "Status", value: customStatus, inline: false }
       )
       .setColor("Blue");
 
