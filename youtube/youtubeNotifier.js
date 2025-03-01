@@ -8,7 +8,6 @@ const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
 });
 
-// YouTube channel mapping (YouTube Channel ID -> Discord Channel)
 const YOUTUBE_CHANNELS = {
   "UCyL-QGEkA1r7R7U5rN_Yonw": { discordChannel: "1341719063780393031", name: "Vereshchak" },
   "UC16xML3oyIZDeF3g8nnV6MA": { discordChannel: "1341719063780393031", name: "Vokope" },
@@ -20,23 +19,18 @@ const YOUTUBE_CHANNELS = {
   "UCnCaLcVf4YsPcsvi6PE4m6A": { discordChannel: "1341733821707452437", name: "ChillHcr2Guy" },
 };
 
-// Load previously sent videos from a file
-const sentVideosFile = "sentVideos.json";
+// Load sent videos from JSON
+const SENT_VIDEOS_FILE = "./youtube/sentVideos.json";
 let sentVideos = {};
 
-// Load sent videos from file (Persistent Storage)
-const loadSentVideos = () => {
-  if (fs.existsSync(sentVideosFile)) {
-    sentVideos = JSON.parse(fs.readFileSync(sentVideosFile));
+if (fs.existsSync(SENT_VIDEOS_FILE)) {
+  try {
+    sentVideos = JSON.parse(fs.readFileSync(SENT_VIDEOS_FILE, "utf8"));
+  } catch (error) {
+    console.error("Error reading sentVideos.json:", error);
   }
-};
+}
 
-
-const saveSentVideos = () => {
-  fs.writeFileSync(sentVideosFile, JSON.stringify(sentVideos, null, 2));
-};
-
-// Function to check YouTube RSS feeds
 async function checkYouTube() {
   for (const [youtubeId, { discordChannel, name }] of Object.entries(YOUTUBE_CHANNELS)) {
     try {
@@ -47,26 +41,14 @@ async function checkYouTube() {
       const videoId = latestVideo.id.split(":").pop();
       const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
 
-      
-      if (!sentVideos[youtubeId]) sentVideos[youtubeId] = [];
-      if (sentVideos[youtubeId].includes(videoId)) {
-        console.log(`Skipping duplicate video: ${videoId}`);
-        continue;
-      }
+      if (!sentVideos[youtubeId] || sentVideos[youtubeId] !== videoId) {
+        sentVideos[youtubeId] = videoId;
+        fs.writeFileSync(SENT_VIDEOS_FILE, JSON.stringify(sentVideos, null, 2));
 
-      // Send message to Discord channel
-      const channel = client.channels.cache.get(discordChannel);
-      if (channel) {
-        await channel.send(`**${name}** uploaded a new video!\n${videoUrl}`);
-        sentVideos[youtubeId].push(videoId);
-
-        
-        if (sentVideos[youtubeId].length > 10) {
-          sentVideos[youtubeId].shift();
+        const channel = client.channels.cache.get(discordChannel);
+        if (channel) {
+          await channel.send(`**${name}** uploaded a new video!\n${videoUrl}`);
         }
-
-        // Save updated sent videos
-        saveSentVideos();
       }
     } catch (error) {
       console.error(`Error fetching feed for ${youtubeId}:`, error);
@@ -76,10 +58,8 @@ async function checkYouTube() {
 
 client.once("ready", () => {
   console.log("YouTube Notifier is running...");
-  loadSentVideos();
   checkYouTube();
   setInterval(checkYouTube, 5 * 60 * 1000); // Check every 5 minutes
 });
 
-// Login to Discord
 client.login(process.env.TOKEN);
