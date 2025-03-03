@@ -7,7 +7,6 @@ module.exports = {
             "2️⃣": "1346088650999464006",
             "3️⃣": "1346088973004574851",
             "4️⃣": "1346089335883042880",
-            console.log(reaction.emoji.name);
         };
 
         client.on("messageReactionAdd", async (reaction, user) => {
