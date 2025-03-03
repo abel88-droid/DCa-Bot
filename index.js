@@ -12,8 +12,10 @@ exec("node deploy-commands.js", (error, stdout, stderr) => {
     console.log(`Slash commands registered: ${stdout}`);
 });
 const { Client, GatewayIntentBits, Collection } = require("discord.js");
-const reactionRolesUnlock = require("./events/reactionRoles_unlockchannel2.js");
-reactionRolesUnlock.execute();
+const reactionRolesUnlock2 = require("./events/reactionRoles_unlockchannel2.js");
+reactionRolesUnlock2.execute();
+const reactionRolesUnlock1 = require("./events/reactionRoles_unlockchannel1.js");
+reactionRolesUnlock1.execute();
 const fs = require("fs");
 const path = require("path");
 require("dotenv").config();
