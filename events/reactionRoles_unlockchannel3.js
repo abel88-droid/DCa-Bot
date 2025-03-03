@@ -15,7 +15,7 @@ module.exports = {
         const messageId = "1346151812809359463";
         const channelId = "1239880291523366942";
         const roleMappings = {
-            "☑️": "1346152224564314202",
+            "👍": "1346152224564314202",
         };
 
         client.on("ready", async () => {
