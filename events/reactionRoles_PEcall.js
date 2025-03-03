@@ -43,5 +43,4 @@ client.on("messageReactionRemove", async (reaction, user) => {
     }
   }
 });
-
-client.login("YOUR_BOT_TOKEN"); // Replace with your bot token
+client.login("MTM0MDIyMjk3MTg0NzExNDc2Mg.Gus_c1.rcewlIIP4EDlT3PMmYEgSMCOo-NcBqp7Vdt2B4"); 
