@@ -14,8 +14,13 @@ exec("node deploy-commands.js", (error, stdout, stderr) => {
 const { Client, GatewayIntentBits, Collection } = require("discord.js");
 const reactionRolesUnlock2 = require("./events/reactionRoles_unlockchannel2.js");
 reactionRolesUnlock2.execute();
+
 const reactionRolesUnlock1 = require("./events/reactionRoles_unlockchannel1.js");
 reactionRolesUnlock1.execute();
+
+const reactionRolesUnlock3 = require("./events/reactionRoles_unlockchannel3.js");
+reactionRolesUnlock3.execute();
+
 const fs = require("fs");
 const path = require("path");
 require("dotenv").config();
