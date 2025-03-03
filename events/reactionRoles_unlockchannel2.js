@@ -29,4 +29,5 @@ module.exports = {
             await member.roles.remove(roleId);
         });
     },
+    console.log(reaction.emoji.name);
 };
