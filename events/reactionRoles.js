@@ -56,4 +56,4 @@ client.on("messageReactionRemove", async (reaction, user) => {
     await member.roles.remove(roleId);
 });
 
-client.login(process.env.TOKEN);
+client.login(process.env.DISCORD_TOKEN);
