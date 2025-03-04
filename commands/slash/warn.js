@@ -18,7 +18,7 @@ module.exports = {
     .addStringOption(option =>
       option.setName("reason")
         .setDescription("Reason for the warning")
-        .setRequired(false))
+        .setRequired(true))
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages), // Restrict command usage to users with "Manage Messages"
 
   async execute(interaction) {
