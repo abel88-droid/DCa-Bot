@@ -11,6 +11,7 @@ exec("node deploy-commands.js", (error, stdout, stderr) => {
     }
     console.log(`Slash commands registered: ${stdout}`);
 });
+
 const { Client, GatewayIntentBits, Collection } = require("discord.js");
 const reactionRolesUnlock2 = require("./events/reactionRoles_unlockchannel2.js");
 reactionRolesUnlock2.execute();
@@ -126,16 +127,20 @@ client.on("messageCreate", async message => {
 
 // Slash (/) command handler
 client.on("interactionCreate", async interaction => {
-    if (!interaction.isCommand()) return;
+    if (interaction.isCommand()) {
+        const command = client.slashCommands.get(interaction.commandName);
+        if (!command) return;
 
-    const command = client.slashCommands.get(interaction.commandName);
-    if (!command) return;
-
-    try {
-        await command.execute(interaction);
-    } catch (error) {
-        console.error(`❌ Error executing slash command ${interaction.commandName}:`, error);
-        interaction.reply({ content: "❌ There was an error executing this command.", ephemeral: true });
+        try {
+            await command.execute(interaction);
+        } catch (error) {
+            console.error(`❌ Error executing slash command ${interaction.commandName}:`, error);
+            interaction.reply({ content: "❌ There was an error executing this command.", ephemeral: true });
+        }
+    } else if (interaction.isButton()) {
+        // Handle button interactions from "commands/events/buttonHandler.js"
+        const buttonHandler = require("./commands/events/buttonHandler.js");
+        await buttonHandler.execute(interaction);
     }
 });
 
