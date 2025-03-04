@@ -11,7 +11,7 @@ module.exports = {
     .addStringOption(option => 
       option.setName("reason")
         .setDescription("Reason for the ban")
-        .setRequired(false))
+        .setRequired(true))
     .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers), // Restrict to those with ban permissions
 
   async execute(interaction) {
