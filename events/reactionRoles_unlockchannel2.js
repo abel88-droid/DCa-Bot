@@ -9,7 +9,7 @@ const client = new Client({
     ]
 });
 
-const channelId = "1239880291523366942"; // #unlock-roles channel ID
+const channelId = "1239880291523366942"; 
 const roleMappings = {
     "yagpdb": "1346087307538599956",
     "hcr2": "1346088650999464006",
