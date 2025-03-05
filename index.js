@@ -13,6 +13,10 @@ exec("node deploy-commands.js", (error, stdout, stderr) => {
 });
 
 const { Client, GatewayIntentBits, Collection } = require("discord.js");
+
+const buttonHandler = require("./commands/events/buttonHandler.js");
+client.on("interactionCreate", (...args) => buttonHandler.execute(...args));
+
 const reactionRolesUnlock2 = require("./events/reactionRoles_unlockchannel2.js");
 reactionRolesUnlock2.execute();
 
