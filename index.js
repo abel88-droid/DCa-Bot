@@ -13,16 +13,6 @@ exec("node deploy-commands.js", (error, stdout, stderr) => {
 });
 
 const { Client, GatewayIntentBits, Collection } = require("discord.js");
-
-const reactionRolesUnlock2 = require("./events/reactionRoles_unlockchannel2.js");
-reactionRolesUnlock2.execute();
-
-const reactionRolesUnlock1 = require("./events/reactionRoles_unlockchannel1.js");
-reactionRolesUnlock1.execute();
-
-const reactionRolesUnlock3 = require("./events/reactionRoles_unlockchannel3.js");
-reactionRolesUnlock3.execute();
-
 const fs = require("fs");
 const path = require("path");
 require("dotenv").config();
@@ -108,21 +98,25 @@ if (fs.existsSync(eventsPath)) {
     console.warn("⚠️ 'events' folder not found. No event handlers loaded.");
 }
 
-
-const eventsPath = path.join(__dirname, "commands/events");
-const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith(".js"));
-
-for (const file of eventFiles) {
-    const filePath = path.join(eventsPath, file);
-    const event = require(filePath);
-
-    if (event.once) {
-        client.once(event.name, (...args) => event.execute(...args));
-    } else {
-        client.on(event.name, (...args) => event.execute(...args));
+// Load additional event handlers from "commands/events"
+const commandsEventsPath = path.join(__dirname, "commands/events");
+if (fs.existsSync(commandsEventsPath)) {
+    const eventFiles = fs.readdirSync(commandsEventsPath).filter(file => file.endsWith(".js"));
+    for (const file of eventFiles) {
+        try {
+            const event = require(path.join(commandsEventsPath, file));
+            if (event.once) {
+                client.once(event.name, (...args) => event.execute(...args, client));
+            } else {
+                client.on(event.name, (...args) => event.execute(...args, client));
+            }
+        } catch (error) {
+            console.error(`❌ Error loading event file ${file}:`, error);
+        }
     }
+} else {
+    console.warn("⚠️ 'commands/events' folder not found. No extra event handlers loaded.");
 }
-
 
 // Traditional (-) command handler
 client.on("messageCreate", async message => {
@@ -161,10 +155,23 @@ client.on("interactionCreate", async interaction => {
     }
 });
 
-
 // Bot ready event
-client.once("ready", () => {
+client.once("ready", async () => {
     console.log(`✅ Logged in as ${client.user.tag}!`);
+
+    // Run reaction role unlock scripts AFTER client is ready
+    try {
+        const reactionRolesUnlock2 = require("./events/reactionRoles_unlockchannel2.js");
+        await reactionRolesUnlock2.execute(client);
+
+        const reactionRolesUnlock1 = require("./events/reactionRoles_unlockchannel1.js");
+        await reactionRolesUnlock1.execute(client);
+
+        const reactionRolesUnlock3 = require("./events/reactionRoles_unlockchannel3.js");
+        await reactionRolesUnlock3.execute(client);
+    } catch (error) {
+        console.error("❌ Error running reaction role scripts:", error);
+    }
 });
 
 // Login the bot
