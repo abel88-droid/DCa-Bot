@@ -1,64 +1,25 @@
+const { Events } = require("discord.js");
+
 module.exports = {
-    name: "reactionRoles_unlockchannel1",
-    async execute() {
-        const { Client, GatewayIntentBits } = require("discord.js");
-
-        const client = new Client({
-            intents: [
-                GatewayIntentBits.Guilds,
-                GatewayIntentBits.GuildMessages,
-                GatewayIntentBits.GuildMessageReactions,
-                GatewayIntentBits.GuildMembers
-            ]
-        });
-
-        const messageId = "1345780755523043388";
+    name: Events.ClientReady,
+    once: true,
+    async execute(client) {
         const channelId = "1239880291523366942";
-        const roleMappings = {
-            "🇦": "1345784949256491109",
-            "🇧": "1345785058979483730",
-        };
+        const channel = await client.channels.fetch(channelId);
+        if (!channel) return console.error("Channel not found!");
 
-        client.on("ready", async () => {
-            console.log(`✅ Logged in as ${client.user.tag}`);
-            const channel = await client.channels.fetch(channelId);
-            if (!channel) return console.log("❌ Channel not found!");
+        
+        const messageContent = `**Select or deselect which category you want to be a part of your server.**\n\n
+        🇦 For socializing in-game.\n
+        🇧 For socializing in everything else.`;
 
-            try {
-                const message = await channel.messages.fetch(messageId);
-                for (const emoji of Object.keys(roleMappings)) {
-                    await message.react(emoji);
-                }
-                console.log("✅ Reactions added to the message!");
-            } catch (error) {
-                console.error("❌ Error fetching message or adding reactions:", error);
-            }
-        });
+        
+        const message = await channel.send(messageContent);
 
-        client.on("messageReactionAdd", async (reaction, user) => {
-            if (reaction.message.id !== messageId || user.bot) return;
-            const roleId = roleMappings[reaction.emoji.name];
-            if (!roleId) return;
+    
+        await message.react("🇦");
+        await message.react("🇧");
 
-            const guild = reaction.message.guild;
-            const member = await guild.members.fetch(user.id);
-            if (!member) return;
-
-            await member.roles.add(roleId);
-        });
-
-        client.on("messageReactionRemove", async (reaction, user) => {
-            if (reaction.message.id !== messageId || user.bot) return;
-            const roleId = roleMappings[reaction.emoji.name];
-            if (!roleId) return;
-
-            const guild = reaction.message.guild;
-            const member = await guild.members.fetch(user.id);
-            if (!member) return;
-
-            await member.roles.remove(roleId);
-        });
-
-        client.login(process.env.DISCORD_TOKEN);
+        console.log("✅ Reaction role message sent successfully!");
     }
 };
