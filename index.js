@@ -108,6 +108,22 @@ if (fs.existsSync(eventsPath)) {
     console.warn("⚠️ 'events' folder not found. No event handlers loaded.");
 }
 
+
+const eventsPath = path.join(__dirname, "commands/events");
+const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith(".js"));
+
+for (const file of eventFiles) {
+    const filePath = path.join(eventsPath, file);
+    const event = require(filePath);
+
+    if (event.once) {
+        client.once(event.name, (...args) => event.execute(...args));
+    } else {
+        client.on(event.name, (...args) => event.execute(...args));
+    }
+}
+
+
 // Traditional (-) command handler
 client.on("messageCreate", async message => {
     if (!message.content.startsWith("-") || message.author.bot) return;
@@ -145,8 +161,6 @@ client.on("interactionCreate", async interaction => {
     }
 });
 
-const buttonHandler = require("./commands/events/buttonHandler.js");
-client.on("interactionCreate", (...args) => buttonHandler.execute(...args));
 
 // Bot ready event
 client.once("ready", () => {
