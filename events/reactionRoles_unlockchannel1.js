@@ -1,46 +1,72 @@
-const { Events } = require("discord.js");
+const { Client, GatewayIntentBits } = require("discord.js");
 
-module.exports = {
-    name: Events.ClientReady,
-    once: true,
-    async execute(client) {
-        const channelId = "1239880291523366942"; 
-        const roleA = "1345784949256491109"; 
-        const roleB = "1345785058979483730"; 
+const client = new Client({
+    intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.GuildMessageReactions,
+        GatewayIntentBits.GuildMembers
+    ]
+});
 
-        const channel = await client.channels.fetch(channelId);
-        if (!channel) return console.error("Channel not found!");
+const channelId = "1239880291523366942"; // #unlock-roles channel ID
+const roleMappings = {
+    "🇦": "1345784949256491109", // Socialise Ingame
+    "🇧": "1345785058979483730", // Socialise for Everything Else
+};
 
-        // Message content
-        const messageContent = `**Select or deselect which category you want to be a part of your server.**\n\n
-        🇦 For socializing in-game.\n
-        🇧 For socializing in everything else.`;
+client.on("ready", async () => {
+    console.log(`✅ Logged in as ${client.user.tag}`);
+    const channel = await client.channels.fetch(channelId);
+    if (!channel) return console.log("❌ Channel not found!");
 
-        // Send the message (only send if it's not already in the channel)
+    
+    const messageContent = `**Select or deselect which category you wanted to be a part of your server.**\n\n
+🇦 For socialise ingame.\n
+🇧 For socialise for everything else.`;
+
+    try {
+        // Fetch recent messages to prevent duplicates
         let messages = await channel.messages.fetch({ limit: 10 });
-        let botMessage = messages.find(msg => msg.author.id === client.user.id && msg.content.includes("Select or deselect"));
+        let botMessage = messages.find(msg => msg.author.id === client.user.id && msg.content.includes("Select or deselect which category you wanted to be a part of your server."));
 
         if (!botMessage) {
             botMessage = await channel.send(messageContent);
-            await botMessage.react("🇦");
-            await botMessage.react("🇧");
+            for (const emoji of Object.keys(roleMappings)) {
+                await botMessage.react(emoji);
+            }
+            console.log("✅ Reaction role message sent!");
+        } else {
+            console.log("⚠️ Message already exists, skipping.");
         }
-
-        console.log("✅ Reaction role message is set!");
-
-        // Reaction role handling
-        client.on("messageReactionAdd", async (reaction, user) => {
-            if (user.bot) return;
-            const member = await reaction.message.guild.members.fetch(user.id);
-            if (reaction.emoji.name === "🇦") await member.roles.add(roleA);
-            if (reaction.emoji.name === "🇧") await member.roles.add(roleB);
-        });
-
-        client.on("messageReactionRemove", async (reaction, user) => {
-            if (user.bot) return;
-            const member = await reaction.message.guild.members.fetch(user.id);
-            if (reaction.emoji.name === "🇦") await member.roles.remove(roleA);
-            if (reaction.emoji.name === "🇧") await member.roles.remove(roleB);
-        });
+    } catch (error) {
+        console.error("❌ Error sending message or adding reactions:", error);
     }
-};
+});
+
+// Role management
+client.on("messageReactionAdd", async (reaction, user) => {
+    if (user.bot) return;
+    const roleId = roleMappings[reaction.emoji.name];
+    if (!roleId) return;
+
+    const guild = reaction.message.guild;
+    const member = await guild.members.fetch(user.id);
+    if (!member) return;
+
+    await member.roles.add(roleId);
+});
+
+client.on("messageReactionRemove", async (reaction, user) => {
+    if (user.bot) return;
+    const roleId = roleMappings[reaction.emoji.name];
+    if (!roleId) return;
+
+    const guild = reaction.message.guild;
+    const member = await guild.members.fetch(user.id);
+    if (!member) return;
+
+    await member.roles.remove(roleId);
+});
+
+client.login(process.env.DISCORD_TOKEN);
