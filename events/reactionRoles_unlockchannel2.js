@@ -30,7 +30,7 @@ client.on("ready", async () => {
     4️⃣ rhytm`;
 
     try {
-        // Fetch recent messages to prevent duplicates
+        
         let messages = await channel.messages.fetch({ limit: 10 });
         let botMessage = messages.find(msg => msg.author.id === client.user.id && msg.content.includes("To interact with bot choose which one."));
 
