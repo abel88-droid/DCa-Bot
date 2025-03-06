@@ -1,7 +1,4 @@
-module.exports = {
-    name: "reactionRoles_unlockchannel3",
-    async execute() {
-        const { Client, GatewayIntentBits } = require("discord.js");
+const { Client, GatewayIntentBits } = require("discord.js");
 
 const client = new Client({
     intents: [
@@ -22,12 +19,13 @@ client.on("ready", async () => {
     const channel = await client.channels.fetch(channelId);
     if (!channel) return console.log("❌ Channel not found!");
 
-    const messageContent = `If you want to speak in other language choose ☑️ to select that. If you want to deselect it again just remove your selection.`;
+    
+    const messageContent = `**If you want to speak in other language choose ☑️ to select that. If you want to deselect it again just remove your selection.`;
 
     try {
         // Fetch recent messages to prevent duplicates
         let messages = await channel.messages.fetch({ limit: 10 });
-        let botMessage = messages.find(msg => msg.author.id === client.user.id && msg.content.includes("Select or deselect which category you wanted to be a part of your server."));
+        let botMessage = messages.find(msg => msg.author.id === client.user.id && msg.content.includes("If you want to speak in other language choose ☑️ to select that. If you want to deselect it again just remove your selection."));
 
         if (!botMessage) {
             botMessage = await channel.send(messageContent);
@@ -43,7 +41,7 @@ client.on("ready", async () => {
     }
 });
 
-
+// Role management
 client.on("messageReactionAdd", async (reaction, user) => {
     if (user.bot) return;
     const roleId = roleMappings[reaction.emoji.name];
@@ -69,5 +67,3 @@ client.on("messageReactionRemove", async (reaction, user) => {
 });
 
 client.login(process.env.DISCORD_TOKEN);
-    }
-};
