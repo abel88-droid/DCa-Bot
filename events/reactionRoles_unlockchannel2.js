@@ -1,6 +1,13 @@
 module.exports = {
     name: "reactionRolesUnlock2",
-    execute: async (client, message, args) => {
+    execute: async (message, args) => {
+        const client = new Client({
+    intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.GuildMessageReactions,
+        GatewayIntentBits.GuildMembers
+    ]
         const channelId = "1239880291523366942"; 
         const roleMappings = {
             "1️⃣": "1346087307538599956", // YAGPDB
