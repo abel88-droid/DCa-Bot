@@ -1,3 +1,5 @@
+module.export = {
+    execute: async (client, message, args) => {
 const { Client, GatewayIntentBits } = require("discord.js");
 
 const client = new Client({
@@ -74,3 +76,6 @@ client.on("messageReactionRemove", async (reaction, user) => {
 });
 
 client.login(process.env.DISCORD_TOKEN);
+    }
+};
+   
