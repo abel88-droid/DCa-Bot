@@ -12,9 +12,9 @@ const client = new Client({
     ]
 });
 
-const channelId = "1239880291523366942"; // #unlock-channels channel ID
-const roleId = "1346090001234567890"; // Role ID for language selection
-const reactionEmoji = "☑️"; // Reaction emoji
+const channelId = "1239880291523366942"; 
+const roleId = "1346152224564314202"; 
+const reactionEmoji = "☑️"; 
 
 client.on("ready", async () => {
     console.log(`✅ Logged in as ${client.user.tag}`);
