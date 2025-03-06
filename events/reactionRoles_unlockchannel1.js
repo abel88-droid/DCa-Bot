@@ -24,7 +24,7 @@ module.exports = {
                 const channel = await client.channels.fetch(channelId);
                 if (!channel) return console.log("❌ Channel not found!");
 
-                const messageContent = `**Select or deselect which category you wanted to be a part of your server.**\n\n 🇦 For socialise ingame.\n 🇧 For socialise for everything else.';
+                const messageContent = `**Select or deselect which category you wanted to be a part of your server.**\n\n 🇦 For socialise ingame.\n 🇧 For socialise for everything else.`;
         
 
                 let messages = await channel.messages.fetch({ limit: 10 });
