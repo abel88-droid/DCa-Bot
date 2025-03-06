@@ -12,53 +12,60 @@ const client = new Client({
     ]
 });
 
-const channelId = "1239880291523366942"; 
-const roleId = "1346152224564314202"; 
-const reactionEmoji = "☑️"; 
+const channelId = "1239880291523366942"; // #unlock-roles channel ID
+const roleMappings = {
+    "☑️": "1346152224564314202", // lng
+};
 
 client.on("ready", async () => {
     console.log(`✅ Logged in as ${client.user.tag}`);
     const channel = await client.channels.fetch(channelId);
     if (!channel) return console.log("❌ Channel not found!");
 
-    // Message content
     const messageContent = `If you want to speak in other language choose ☑️ to select that. If you want to deselect it again just remove your selection.`;
 
     try {
         // Fetch recent messages to prevent duplicates
         let messages = await channel.messages.fetch({ limit: 10 });
-        let botMessage = messages.find(msg => msg.author.id === client.user.id && msg.content.includes("If you want to speak in other language choose ☑️"));
+        let botMessage = messages.find(msg => msg.author.id === client.user.id && msg.content.includes("Select or deselect which category you wanted to be a part of your server."));
 
         if (!botMessage) {
             botMessage = await channel.send(messageContent);
-            await botMessage.react(reactionEmoji);
-            console.log("✅ Language selection message sent with reaction!");
-        } else {
-            console.log("⚠️ Message already exists, ensuring reaction.");
-            if (!botMessage.reactions.cache.has(reactionEmoji)) {
-                await botMessage.react(reactionEmoji);
+            for (const emoji of Object.keys(roleMappings)) {
+                await botMessage.react(emoji);
             }
+            console.log("✅ Reaction role message sent!");
+        } else {
+            console.log("⚠️ Message already exists, skipping.");
         }
     } catch (error) {
-        console.error("❌ Error sending message or adding reaction:", error);
+        console.error("❌ Error sending message or adding reactions:", error);
     }
 });
 
-// Role management with reactions
+// Role management
 client.on("messageReactionAdd", async (reaction, user) => {
-    if (reaction.message.channel.id !== channelId || reaction.emoji.name !== reactionEmoji || user.bot) return;
+    if (user.bot) return;
+    const roleId = roleMappings[reaction.emoji.name];
+    if (!roleId) return;
 
-    const member = await reaction.message.guild.members.fetch(user.id);
+    const guild = reaction.message.guild;
+    const member = await guild.members.fetch(user.id);
+    if (!member) return;
+
     await member.roles.add(roleId);
-    console.log(`✅ Added role to ${user.tag}`);
 });
 
 client.on("messageReactionRemove", async (reaction, user) => {
-    if (reaction.message.channel.id !== channelId || reaction.emoji.name !== reactionEmoji || user.bot) return;
+    if (user.bot) return;
+    const roleId = roleMappings[reaction.emoji.name];
+    if (!roleId) return;
 
-    const member = await reaction.message.guild.members.fetch(user.id);
+    const guild = reaction.message.guild;
+    const member = await guild.members.fetch(user.id);
+    if (!member) return;
+
     await member.roles.remove(roleId);
-    console.log(`❌ Removed role from ${user.tag}`);
 });
 
 client.login(process.env.DISCORD_TOKEN);
