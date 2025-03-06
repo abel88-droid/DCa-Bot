@@ -41,7 +41,6 @@ client.on("ready", async () => {
     }
 });
 
-// Role management
 client.on("messageReactionAdd", async (reaction, user) => {
     if (user.bot) return;
     const roleId = roleMappings[reaction.emoji.name];
