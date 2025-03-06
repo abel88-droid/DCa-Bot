@@ -1,46 +1,73 @@
-const { Client, GatewayIntentBits } = require("discord.js");
+module.exports = {
+    name: "reactionRoles_GCcall",
+    async execute() {
+        const { Client, GatewayIntentBits } = require("discord.js");
 
 const client = new Client({
-  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMessageReactions, GatewayIntentBits.GuildMembers],
+    intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.GuildMessageReactions,
+        GatewayIntentBits.GuildMembers
+    ]
 });
 
-const MESSAGE_ID = "1346084018898337863";
-const CHANNEL_ID = "1345936577410502716";
-const ROLE_ID = "1346083963168362601";
-const EMOJI = "👍";
+const channelId = "1345936577410502716"; // #unlock-roles channel ID
+const roleMappings = {
+    "☑️": "1346083963168362601", // GC call
+};
 
-client.once("ready", async () => {
-  console.log(`Logged in as ${client.user.tag}`);
+client.on("ready", async () => {
+    console.log(`✅ Logged in as ${client.user.tag}`);
+    const channel = await client.channels.fetch(channelId);
+    if (!channel) return console.log("❌ Channel not found!");
 
-  const channel = await client.channels.fetch(CHANNEL_ID);
-  if (!channel) return console.log("Channel not found.");
+    const messageContent = `React with thumbsup if you want ping everytime there is a organized event.`;
 
-  try {
-    const message = await channel.messages.fetch(MESSAGE_ID);
-    await message.react(EMOJI); 
-    console.log("Reaction added to the message.");
-  } catch (error) {
-    console.error("Failed to fetch message or react:", error);
-  }
-});
+    try {
+        // Fetch recent messages to prevent duplicates
+        let messages = await channel.messages.fetch({ limit: 10 });
+        let botMessage = messages.find(msg => msg.author.id === client.user.id && msg.content.includes("Select or deselect which category you wanted to be a part of your server."));
 
-client.on("messageReactionAdd", async (reaction, user) => {
-  if (reaction.message.id === MESSAGE_ID && reaction.emoji.name === EMOJI) {
-    const member = await reaction.message.guild.members.fetch(user.id);
-    if (member) {
-      await member.roles.add(ROLE_ID);
-      console.log(`Added role to ${user.tag}`);
+        if (!botMessage) {
+            botMessage = await channel.send(messageContent);
+            for (const emoji of Object.keys(roleMappings)) {
+                await botMessage.react(emoji);
+            }
+            console.log("✅ Reaction role message sent!");
+        } else {
+            console.log("⚠️ Message already exists, skipping.");
+        }
+    } catch (error) {
+        console.error("❌ Error sending message or adding reactions:", error);
     }
-  }
+});
+
+// Role management
+client.on("messageReactionAdd", async (reaction, user) => {
+    if (user.bot) return;
+    const roleId = roleMappings[reaction.emoji.name];
+    if (!roleId) return;
+
+    const guild = reaction.message.guild;
+    const member = await guild.members.fetch(user.id);
+    if (!member) return;
+
+    await member.roles.add(roleId);
 });
 
 client.on("messageReactionRemove", async (reaction, user) => {
-  if (reaction.message.id === MESSAGE_ID && reaction.emoji.name === EMOJI) {
-    const member = await reaction.message.guild.members.fetch(user.id);
-    if (member) {
-      await member.roles.remove(ROLE_ID);
-      console.log(`Removed role from ${user.tag}`);
-    }
-  }
+    if (user.bot) return;
+    const roleId = roleMappings[reaction.emoji.name];
+    if (!roleId) return;
+
+    const guild = reaction.message.guild;
+    const member = await guild.members.fetch(user.id);
+    if (!member) return;
+
+    await member.roles.remove(roleId);
 });
-client.login("MTM0MDIyMjk3MTg0NzExNDc2Mg.Gus_c1.rcewlIIP4EDlT3PMmYEgSMCOo-NcBqp7Vdt2B4"); 
+
+client.login(process.env.DISCORD_TOKEN);
+    }
+};
