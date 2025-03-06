@@ -23,7 +23,7 @@ client.on("ready", async () => {
     const messageContent = `If you want to speak in other language choose ☑️ to select that. If you want to deselect it again just remove your selection.`;
 
     try {
-        // Fetch recent messages to prevent duplicates
+        // Fetch recent
         let messages = await channel.messages.fetch({ limit: 10 });
         let botMessage = messages.find(msg => msg.author.id === client.user.id && msg.content.includes("If you want to speak in other language choose ☑️ to select that. If you want to deselect it again just remove your selection."));
 
