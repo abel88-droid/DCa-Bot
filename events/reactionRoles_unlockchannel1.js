@@ -73,3 +73,4 @@ module.exports = {
         client.login(process.env.DISCORD_TOKEN); // ✅ Ensuring bot logs in
     }
 };
+
