@@ -98,26 +98,6 @@ if (fs.existsSync(eventsPath)) {
     console.warn("⚠️ 'events' folder not found. No event handlers loaded.");
 }
 
-// Load additional event handlers from "commands/events"
-const commandsEventsPath = path.join(__dirname, "commands/events");
-if (fs.existsSync(commandsEventsPath)) {
-    const eventFiles = fs.readdirSync(commandsEventsPath).filter(file => file.endsWith(".js"));
-    for (const file of eventFiles) {
-        try {
-            const event = require(path.join(commandsEventsPath, file));
-            if (event.once) {
-                client.once(event.name, (...args) => event.execute(...args, client));
-            } else {
-                client.on(event.name, (...args) => event.execute(...args, client));
-            }
-        } catch (error) {
-            console.error(`❌ Error loading event file ${file}:`, error);
-        }
-    }
-} else {
-    console.warn("⚠️ 'commands/events' folder not found. No extra event handlers loaded.");
-}
-
 // Traditional (-) command handler
 client.on("messageCreate", async message => {
     if (!message.content.startsWith("-") || message.author.bot) return;
