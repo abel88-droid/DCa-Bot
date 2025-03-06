@@ -1,15 +1,10 @@
 module.export = {
+    name: "reactionRolesUnlock2",
     execute: async (client, message, args) => {
 const { Client, GatewayIntentBits } = require("discord.js");
 
-const client = new Client({
-    intents: [
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.GuildMessageReactions,
-        GatewayIntentBits.GuildMembers
-    ]
-});
+
+
 
 const channelId = "1239880291523366942"; 
 const roleMappings = {
