@@ -151,7 +151,12 @@ client.once("ready", async () => {
         await reactionRolesUnlock3.execute(client);
 
         const reactionRoles_PEcall = require("./events/reactionRoles_PEcall.js");
-        await reactionRoles_PEcall.execute(client);
+        if (typeof reactionRoles_PEcall.execute === "function") {
+            await reactionRoles_PEcall.execute(client);
+            console.log("✅ reactionRoles_PEcall executed successfully.");
+        } else {
+            console.error("❌ reactionRoles_PEcall.execute is not a function!");
+        }
         
     } catch (error) {
         console.error("❌ Error running reaction role scripts:", error);
