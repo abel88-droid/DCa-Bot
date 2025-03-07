@@ -1,46 +1,71 @@
 const { Client, GatewayIntentBits } = require("discord.js");
 
-const client = new Client({
-  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMessageReactions, GatewayIntentBits.GuildMembers],
-});
+module.exports = {
+    name: "reactionRoles_PEcall",
+    execute: async (message, args) => {
+        const client = new Client({
+            intents: [
+                GatewayIntentBits.Guilds,
+                GatewayIntentBits.GuildMessages,
+                GatewayIntentBits.GuildMessageReactions,
+                GatewayIntentBits.GuildMembers
+            ]
+        });
 
-const MESSAGE_ID = "1346079269985583154";
-const CHANNEL_ID = "1345936577410502716";
-const ROLE_ID = "1346079729375252512";
-const EMOJI = "👍";
+        const channelId = "1345936577410502716"; 
+        const roleMappings = {
+            "👍": "1346079729375252512", // PE call
+        };
 
-client.once("ready", async () => {
-  console.log(`Logged in as ${client.user.tag}`);
+        client.once("ready", async () => {
+            console.log(`✅ Logged in as ${client.user.tag}`);
+            try {
+                const channel = await client.channels.fetch(channelId);
+                if (!channel) return console.log("❌ Channel not found!");
 
-  const channel = await client.channels.fetch(CHANNEL_ID);
-  if (!channel) return console.log("Channel not found.");
+                const messageContent = `React with thumbs up if you want ping every time there is an organized event.`;
 
-  try {
-    const message = await channel.messages.fetch(MESSAGE_ID);
-    await message.react(EMOJI); 
-    console.log("Reaction added to the message.");
-  } catch (error) {
-    console.error("Failed to fetch message or react:", error);
-  }
-});
+                let messages = await channel.messages.fetch({ limit: 10 });
+                let botMessage = messages.find(msg => 
+                    msg.author.id === client.user.id && msg.content.includes("React with thumbs up if you want ping every time there is an organized event.")
+                );
 
-client.on("messageReactionAdd", async (reaction, user) => {
-  if (reaction.message.id === MESSAGE_ID && reaction.emoji.name === EMOJI) {
-    const member = await reaction.message.guild.members.fetch(user.id);
-    if (member) {
-      await member.roles.add(ROLE_ID);
-      console.log(`Added role to ${user.tag}`);
+                if (!botMessage) {
+                    botMessage = await channel.send(messageContent);
+                    await botMessage.react("👍");
+                    console.log("✅ Reaction role message sent!");
+                } else {
+                    console.log("⚠️ Message already exists, skipping.");
+                }
+            } catch (error) {
+                console.error("❌ Error sending message or adding reactions:", error);
+            }
+        });
+
+        client.on("messageReactionAdd", async (reaction, user) => {
+            if (user.bot) return;
+            const roleId = roleMappings[reaction.emoji.name];
+            if (!roleId) return;
+
+            const guild = reaction.message.guild;
+            const member = await guild.members.fetch(user.id);
+            if (!member) return;
+
+            await member.roles.add(roleId);
+        });
+
+        client.on("messageReactionRemove", async (reaction, user) => {
+            if (user.bot) return;
+            const roleId = roleMappings[reaction.emoji.name];
+            if (!roleId) return;
+
+            const guild = reaction.message.guild;
+            const member = await guild.members.fetch(user.id);
+            if (!member) return;
+
+            await member.roles.remove(roleId);
+        });
+
+        client.login(process.env.DISCORD_TOKEN); // ✅ Ensuring bot logs in
     }
-  }
-});
-
-client.on("messageReactionRemove", async (reaction, user) => {
-  if (reaction.message.id === MESSAGE_ID && reaction.emoji.name === EMOJI) {
-    const member = await reaction.message.guild.members.fetch(user.id);
-    if (member) {
-      await member.roles.remove(ROLE_ID);
-      console.log(`Removed role from ${user.tag}`);
-    }
-  }
-});
-client.login("MTM0MDIyMjk3MTg0NzExNDc2Mg.Gus_c1.rcewlIIP4EDlT3PMmYEgSMCOo-NcBqp7Vdt2B4"); 
+};
