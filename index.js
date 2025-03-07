@@ -141,14 +141,18 @@ client.once("ready", async () => {
 
     // Run reaction role unlock scripts AFTER client is ready
     try {
-        const reactionRolesUnlock2 = require("./events/reactionRoles_unlockchannel2.js");
-        await reactionRolesUnlock2.execute(client);
-
         const reactionRolesUnlock1 = require("./events/reactionRoles_unlockchannel1.js");
         await reactionRolesUnlock1.execute(client);
 
+        const reactionRolesUnlock2 = require("./events/reactionRoles_unlockchannel2.js");
+        await reactionRolesUnlock2.execute(client);
+
         const reactionRolesUnlock3 = require("./events/reactionRoles_unlockchannel3.js");
         await reactionRolesUnlock3.execute(client);
+
+        const reactionRoles_PEcall = require("./events/reactionRoles_PEcall.js");
+        await reactionRoles_PEcall.execute(client);
+        
     } catch (error) {
         console.error("❌ Error running reaction role scripts:", error);
     }
