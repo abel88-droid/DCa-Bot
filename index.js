@@ -135,12 +135,13 @@ client.on("interactionCreate", async interaction => {
     }
 });
 
-// Bot ready event
 client.once("ready", async () => {
     console.log(`✅ Logged in as ${client.user.tag}!`);
 
     // Run reaction role unlock scripts AFTER client is ready
     try {
+        console.log("ℹ️ Running reaction role scripts..."); // ADD THIS LINE
+
         const reactionRolesUnlock1 = require("./events/reactionRoles_unlockchannel1.js");
         await reactionRolesUnlock1.execute(client);
 
@@ -150,14 +151,12 @@ client.once("ready", async () => {
         const reactionRolesUnlock3 = require("./events/reactionRoles_unlockchannel3.js");
         await reactionRolesUnlock3.execute(client);
 
+        console.log("ℹ️ Running reactionRoles_PEcall.js..."); // ADD THIS LINE
         const reactionRoles_PEcall = require("./events/reactionRoles_PEcall.js");
-        if (typeof reactionRoles_PEcall.execute === "function") {
-            await reactionRoles_PEcall.execute(client);
-            console.log("✅ reactionRoles_PEcall executed successfully.");
-        } else {
-            console.error("❌ reactionRoles_PEcall.execute is not a function!");
-        }
-        
+        await reactionRoles_PEcall.execute(client);
+
+        console.log("✅ reactionRoles_PEcall.js executed successfully!"); // ADD THIS LINE
+
     } catch (error) {
         console.error("❌ Error running reaction role scripts:", error);
     }
