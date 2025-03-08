@@ -2,14 +2,14 @@ const { exec } = require("child_process");
 
 exec("node deploy-commands.js", (error, stdout, stderr) => {
     if (error) {
-        console.error(`Error registering commands: ${error.message}`);
+        console.error(`❌ Error registering commands: ${error.message}`);
         return;
     }
     if (stderr) {
-        console.error(`stderr: ${stderr}`);
+        console.error(`❌ stderr: ${stderr}`);
         return;
     }
-    console.log(`Slash commands registered: ${stdout}`);
+    console.log(`✅ Slash commands registered: ${stdout}`);
 });
 
 const { Client, GatewayIntentBits, Collection } = require("discord.js");
@@ -127,14 +127,18 @@ client.on("interactionCreate", async interaction => {
             await command.execute(interaction);
         } catch (error) {
             console.error(`❌ Error executing slash command ${interaction.commandName}:`, error);
-            interaction.reply({ content: "❌ There was an error executing this command.", ephemeral: true });
+            await interaction.reply({ content: "❌ There was an error executing this command.", ephemeral: true });
         }
     } else if (interaction.isButton()) {
-        // Handle button interactions from "commands/events/buttonHandler.js"
-        const buttonHandler = require("./commands/events/buttonHandler.js");
-        await buttonHandler.execute(interaction);
+        try {
+            const buttonHandler = require("./commands/events/buttonHandler.js");
+            await buttonHandler.execute(interaction);
+        } catch (error) {
+            console.error("❌ Error handling button interaction:", error);
+        }
     }
 });
+
 client.once("ready", async () => {
     console.log(`✅ Logged in as ${client.user.tag}!`);
     console.log("ℹ️ Running reaction role scripts...");
@@ -145,13 +149,13 @@ client.once("ready", async () => {
         const reactionRolesUnlock3 = require("./events/reactionRoles_unlockchannel3.js");
         const reactionRolesPECall = require("./events/reactionRoles_PEcall.js");
         const reactionRolesGCcall = require("./events/reactionRoles_GCcall.js");
-        const reactionRolesTournament = require("./events/reactionRolesTournament.js"); // ✅ Added Tournament Reaction Roles
+        const reactionRolesTournament = require("./events/reactionRolesTournament.js");
 
         client.reactionRoleMessages = {
             unlockMsgId: await reactionRolesUnlock3.execute(client),
             peCallMsgId: await reactionRolesPECall.execute(client),
             gcCallMsgId: await reactionRolesGCcall.execute(client),
-            tournamentMsgId: await reactionRolesTournament.execute(client), // ✅ Added Tournament Message
+            tournamentMsgId: await reactionRolesTournament.execute(client),
         };
 
         await reactionRolesUnlock1.execute(client);
@@ -163,21 +167,21 @@ client.once("ready", async () => {
     }
 });
 
-client.on("messageReactionAdd", async (reaction, user) => {
+const handleReactionRole = async (reaction, user, add) => {
     if (user.bot || !client.reactionRoleMessages) return;
 
     let roleId;
     if (reaction.message.id === client.reactionRoleMessages.unlockMsgId) {
-        roleId = "1346152224564314202"; // Unlock Role
+        roleId = "1346152224564314202";
     } else if (reaction.message.id === client.reactionRoleMessages.peCallMsgId) {
-        roleId = "1346079729375252512"; // PE Call Role
+        roleId = "1346079729375252512";
     } else if (reaction.message.id === client.reactionRoleMessages.gcCallMsgId) {
-        roleId = "1346083963168362601"; // GC Call Role
+        roleId = "1346083963168362601";
     } else if (reaction.message.id === client.reactionRoleMessages.tournamentMsgId) {
         if (reaction.emoji.name === "🏁") {
-            roleId = "TOURNAMENT_ROLE_ID"; // 🏁 Tournament Role (Replace with actual ID)
+            roleId = "TOURNAMENT_ROLE_ID";
         } else if (reaction.emoji.name === "🏞️") {
-            roleId = "ADVENTURE_ROLE_ID"; // 🏞️ Adventure Role (Replace with actual ID)
+            roleId = "ADVENTURE_ROLE_ID";
         }
     } else {
         return;
@@ -185,41 +189,19 @@ client.on("messageReactionAdd", async (reaction, user) => {
 
     try {
         const member = await reaction.message.guild.members.fetch(user.id);
-        await member.roles.add(roleId);
-        console.log(`✅ Added role ${roleId} to ${user.tag}`);
-    } catch (error) {
-        console.error("❌ Error adding role:", error);
-    }
-});
-
-client.on("messageReactionRemove", async (reaction, user) => {
-    if (user.bot || !client.reactionRoleMessages) return;
-
-    let roleId;
-    if (reaction.message.id === client.reactionRoleMessages.unlockMsgId) {
-        roleId = "1346152224564314202"; // Unlock Role
-    } else if (reaction.message.id === client.reactionRoleMessages.peCallMsgId) {
-        roleId = "1346079729375252512"; // PE Call Role
-    } else if (reaction.message.id === client.reactionRoleMessages.gcCallMsgId) {
-        roleId = "1346083963168362601"; // GC Call Role
-    } else if (reaction.message.id === client.reactionRoleMessages.tournamentMsgId) {
-        if (reaction.emoji.name === "🏁") {
-            roleId = "TOURNAMENT_ROLE_ID"; // 🏁 Tournament Role (Replace with actual ID)
-        } else if (reaction.emoji.name === "🏞️") {
-            roleId = "ADVENTURE_ROLE_ID"; // 🏞️ Adventure Role (Replace with actual ID)
+        if (add) {
+            await member.roles.add(roleId);
+            console.log(`✅ Added role ${roleId} to ${user.tag}`);
+        } else {
+            await member.roles.remove(roleId);
+            console.log(`❌ Removed role ${roleId} from ${user.tag}`);
         }
-    } else {
-        return;
-    }
-
-    try {
-        const member = await reaction.message.guild.members.fetch(user.id);
-        await member.roles.remove(roleId);
-        console.log(`❌ Removed role ${roleId} from ${user.tag}`);
     } catch (error) {
-        console.error("❌ Error removing role:", error);
+        console.error("❌ Error modifying role:", error);
     }
-});
+};
 
+client.on("messageReactionAdd", (reaction, user) => handleReactionRole(reaction, user, true));
+client.on("messageReactionRemove", (reaction, user) => handleReactionRole(reaction, user, false));
 
 client.login(process.env.TOKEN);
