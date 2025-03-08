@@ -149,7 +149,9 @@ client.once("ready", async () => {
         await reactionRolesUnlock2.execute(client);
 
         const reactionRolesUnlock3 = require("./events/reactionRoles_unlockchannel3.js");
-        await reactionRolesUnlock3.execute(client);
+        await reactionRolesUnlock3.execute(client); // Send the message
+        reactionRolesUnlock3.registerListeners(client); // Attach listeners
+        
 
         console.log("ℹ️ Running reactionRoles_PEcall.js..."); // ADD THIS LINE
         const reactionRoles_PEcall = require("./events/reactionRoles_PEcall.js");
