@@ -135,8 +135,6 @@ client.on("interactionCreate", async interaction => {
         await buttonHandler.execute(interaction);
     }
 });
-
-
 client.once("ready", async () => {
     console.log(`✅ Logged in as ${client.user.tag}!`);
     console.log("ℹ️ Running reaction role scripts...");
@@ -151,7 +149,7 @@ client.once("ready", async () => {
         client.reactionRoleMessages = {
             unlockMsgId: await reactionRolesUnlock3.execute(client),
             peCallMsgId: await reactionRolesPECall.execute(client),
-            gcCallMsgId: await reactionRolesGCcall.execute(client),
+            gcCallMsgId: await reactionRolesGCcall.execute(client), // ✅ Added GC Call
         };
 
         await reactionRolesUnlock1.execute(client);
@@ -168,11 +166,11 @@ client.on("messageReactionAdd", async (reaction, user) => {
 
     let roleId;
     if (reaction.message.id === client.reactionRoleMessages.unlockMsgId) {
-        roleId = "1346152224564314202"; // lng
+        roleId = "1346152224564314202"; // Unlock Role
     } else if (reaction.message.id === client.reactionRoleMessages.peCallMsgId) {
         roleId = "1346079729375252512"; // PE Call Role
     } else if (reaction.message.id === client.reactionRoleMessages.gcCallMsgId) {
-        roleId = "1346083963168362601"; // GC Call Role
+        roleId = "1346083963168362601"; // ✅ GC Call Role
     } else {
         return;
     }
@@ -195,7 +193,7 @@ client.on("messageReactionRemove", async (reaction, user) => {
     } else if (reaction.message.id === client.reactionRoleMessages.peCallMsgId) {
         roleId = "1346079729375252512"; // PE Call Role
     } else if (reaction.message.id === client.reactionRoleMessages.gcCallMsgId) {
-        roleId = "1346083963168362601"; // GC Call Role
+        roleId = "1346083963168362601"; // ✅ GC Call Role
     } else {
         return;
     }
@@ -208,4 +206,6 @@ client.on("messageReactionRemove", async (reaction, user) => {
         console.error("❌ Error removing role:", error);
     }
 });
+
+
 client.login(process.env.TOKEN);
