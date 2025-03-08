@@ -24,7 +24,7 @@ const client = new Client({
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.GuildMembers,
         GatewayIntentBits.GuildMessageReactions,
-        GatewayIntentBits.GuildBans, // Required for unban command
+        GatewayIntentBits.GuildBans,
         GatewayIntentBits.MessageContent
     ]
 });
@@ -138,44 +138,38 @@ client.on("interactionCreate", async interaction => {
 
 client.once("ready", async () => {
     console.log(`✅ Logged in as ${client.user.tag}!`);
+    console.log("ℹ️ Running reaction role scripts...");
 
-    // Run reaction role unlock scripts AFTER client is ready
     try {
-        console.log("ℹ️ Running reaction role scripts..."); // ADD THIS LINE
-
         const reactionRolesUnlock1 = require("./events/reactionRoles_unlockchannel1.js");
-        await reactionRolesUnlock1.execute(client);
-
         const reactionRolesUnlock2 = require("./events/reactionRoles_unlockchannel2.js");
-        await reactionRolesUnlock2.execute(client);
-        
-
         const reactionRolesUnlock3 = require("./events/reactionRoles_unlockchannel3.js");
         const reactionRolesPECall = require("./events/reactionRoles_PEcall.js");
 
-client.on("ready", async () => {
-    console.log(`✅ Logged in as ${client.user.tag}`);
+        client.reactionRoleMessages = {
+            unlockMsgId: await reactionRolesUnlock3.execute(client),
+            peCallMsgId: await reactionRolesPECall.execute(client)
+        };
 
-    await reactionRolesUnlock3.execute(client);
-    await reactionRolesPECall.execute(client);
+        await reactionRolesUnlock1.execute(client);
+        await reactionRolesUnlock2.execute(client);
 
-    console.log("🔹 Reaction role scripts executed.");
+        console.log("✅ Reaction role scripts executed.");
+    } catch (error) {
+        console.error("❌ Error running reaction role scripts:", error);
+    }
 });
 
 client.on("messageReactionAdd", async (reaction, user) => {
-    if (user.bot) return;
-
-    const unlockMsgId = reactionRolesUnlock3.messageId;
-    const peCallMsgId = reactionRolesPECall.messageId;
+    if (user.bot || !client.reactionRoleMessages) return;
 
     let roleId;
-    
-    if (reaction.message.id === unlockMsgId) {
+    if (reaction.message.id === client.reactionRoleMessages.unlockMsgId) {
         roleId = "1346152224564314202"; // Unlock Role
-    } else if (reaction.message.id === peCallMsgId) {
+    } else if (reaction.message.id === client.reactionRoleMessages.peCallMsgId) {
         roleId = "1346079729375252512"; // PE Call Role
     } else {
-        return; 
+        return;
     }
 
     try {
@@ -188,19 +182,15 @@ client.on("messageReactionAdd", async (reaction, user) => {
 });
 
 client.on("messageReactionRemove", async (reaction, user) => {
-    if (user.bot) return;
-
-    const unlockMsgId = reactionRolesUnlock3.messageId;
-    const peCallMsgId = reactionRolesPECall.messageId;
+    if (user.bot || !client.reactionRoleMessages) return;
 
     let roleId;
-    
-    if (reaction.message.id === unlockMsgId) {
+    if (reaction.message.id === client.reactionRoleMessages.unlockMsgId) {
         roleId = "1346152224564314202"; // Unlock Role
-    } else if (reaction.message.id === peCallMsgId) {
+    } else if (reaction.message.id === client.reactionRoleMessages.peCallMsgId) {
         roleId = "1346079729375252512"; // PE Call Role
     } else {
-        return; 
+        return;
     }
 
     try {
@@ -211,10 +201,5 @@ client.on("messageReactionRemove", async (reaction, user) => {
         console.error("❌ Error removing role:", error);
     }
 });
-    } catch (error) {
-        console.error("❌ Error running reaction role scripts:", error);
-    }
-});
-
 
 client.login(process.env.TOKEN);
