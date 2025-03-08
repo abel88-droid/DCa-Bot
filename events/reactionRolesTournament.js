@@ -2,11 +2,10 @@ module.exports = {
     name: "reactionRolesTournament",
     async execute(client) {
         const channelId = "1239880291523366942"; // tourn
-        const messageContent = `**If you want to participate in tournament or socialise in a competitive way in adventure, choose the one you like**.
+        const messageContent = `**If you want to participate in tournament or socialise in a competitive way in adventure, choose the one you like.**
 
-                              Tournament choose 🏁  
-                              
-                              Adventure choose 🏞️`;
+Tournament choose 🏁  
+Adventure choose 🏞️`;
         const roleMappings = {
             "🏁": "1347890213296410644", //  Tournament role ID
             "🏞️": "1347890535343456276"  // Adventure role ID
