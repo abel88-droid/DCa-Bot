@@ -145,11 +145,13 @@ client.once("ready", async () => {
         const reactionRolesUnlock3 = require("./events/reactionRoles_unlockchannel3.js");
         const reactionRolesPECall = require("./events/reactionRoles_PEcall.js");
         const reactionRolesGCcall = require("./events/reactionRoles_GCcall.js");
+        const reactionRolesTournament = require("./events/reactionRolesTournament.js"); // ✅ Added Tournament Reaction Roles
 
         client.reactionRoleMessages = {
             unlockMsgId: await reactionRolesUnlock3.execute(client),
             peCallMsgId: await reactionRolesPECall.execute(client),
-            gcCallMsgId: await reactionRolesGCcall.execute(client), // ✅ Added GC Call
+            gcCallMsgId: await reactionRolesGCcall.execute(client),
+            tournamentMsgId: await reactionRolesTournament.execute(client), // ✅ Added Tournament Message
         };
 
         await reactionRolesUnlock1.execute(client);
@@ -170,7 +172,13 @@ client.on("messageReactionAdd", async (reaction, user) => {
     } else if (reaction.message.id === client.reactionRoleMessages.peCallMsgId) {
         roleId = "1346079729375252512"; // PE Call Role
     } else if (reaction.message.id === client.reactionRoleMessages.gcCallMsgId) {
-        roleId = "1346083963168362601"; // ✅ GC Call Role
+        roleId = "1346083963168362601"; // GC Call Role
+    } else if (reaction.message.id === client.reactionRoleMessages.tournamentMsgId) {
+        if (reaction.emoji.name === "🏁") {
+            roleId = "TOURNAMENT_ROLE_ID"; // 🏁 Tournament Role (Replace with actual ID)
+        } else if (reaction.emoji.name === "🏞️") {
+            roleId = "ADVENTURE_ROLE_ID"; // 🏞️ Adventure Role (Replace with actual ID)
+        }
     } else {
         return;
     }
@@ -193,7 +201,13 @@ client.on("messageReactionRemove", async (reaction, user) => {
     } else if (reaction.message.id === client.reactionRoleMessages.peCallMsgId) {
         roleId = "1346079729375252512"; // PE Call Role
     } else if (reaction.message.id === client.reactionRoleMessages.gcCallMsgId) {
-        roleId = "1346083963168362601"; // ✅ GC Call Role
+        roleId = "1346083963168362601"; // GC Call Role
+    } else if (reaction.message.id === client.reactionRoleMessages.tournamentMsgId) {
+        if (reaction.emoji.name === "🏁") {
+            roleId = "TOURNAMENT_ROLE_ID"; // 🏁 Tournament Role (Replace with actual ID)
+        } else if (reaction.emoji.name === "🏞️") {
+            roleId = "ADVENTURE_ROLE_ID"; // 🏞️ Adventure Role (Replace with actual ID)
+        }
     } else {
         return;
     }
