@@ -23,6 +23,7 @@ const client = new Client({
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.GuildMessageReactions,
         GatewayIntentBits.GuildBans, // Required for unban command
         GatewayIntentBits.MessageContent
     ]
