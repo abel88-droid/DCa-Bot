@@ -144,6 +144,8 @@ client.once("ready", async () => {
         const reactionRolesUnlock1 = require("./events/reactionRoles_unlockchannel1.js");
         const reactionRolesUnlock2 = require("./events/reactionRoles_unlockchannel2.js");
         const reactionRolesUnlock3 = require("./events/reactionRoles_unlockchannel3.js");
+        const reactionRolesGCcall = require("./events/reactionRoles_GCcall.js");
+        await reactionRolesGCcall.execute(client);
         const reactionRolesPECall = require("./events/reactionRoles_PEcall.js");
 
         client.reactionRoleMessages = {
