@@ -164,5 +164,5 @@ client.once("ready", async () => {
     }
 });
 
-// Login the bot
+
 client.login(process.env.TOKEN);
