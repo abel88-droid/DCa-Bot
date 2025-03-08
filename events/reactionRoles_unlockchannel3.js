@@ -29,32 +29,43 @@ module.exports = {
                 console.log("⚠️ Message already exists, skipping.");
             }
 
-            client.on("messageReactionAdd", async (reaction, user) => {
-                if (user.bot) return;
-                const roleId = roleMappings[reaction.emoji.name];
-                if (!roleId) return;
-
-                const guild = reaction.message.guild;
-                const member = await guild.members.fetch(user.id);
-                if (!member) return;
-
-                await member.roles.add(roleId);
-            });
-
-            client.on("messageReactionRemove", async (reaction, user) => {
-                if (user.bot) return;
-                const roleId = roleMappings[reaction.emoji.name];
-                if (!roleId) return;
-
-                const guild = reaction.message.guild;
-                const member = await guild.members.fetch(user.id);
-                if (!member) return;
-
-                await member.roles.remove(roleId);
-            });
-
         } catch (error) {
             console.error("❌ Error in reactionRolesUnlock3:", error);
         }
     }
+};
+
+// Register reaction role listeners globally in index.js
+module.exports.registerListeners = (client) => {
+    const roleMappings = {
+        "☑️": "1346152224564314202", // lng
+    };
+
+    client.on("messageReactionAdd", async (reaction, user) => {
+        if (user.bot) return;
+        const roleId = roleMappings[reaction.emoji.name];
+        if (!roleId) return;
+
+        const guild = reaction.message.guild;
+        const member = await guild.members.fetch(user.id);
+        if (!member) return;
+
+        await member.roles.add(roleId);
+        console.log(`✅ Added role ${roleId} to ${user.tag}`);
+    });
+
+    client.on("messageReactionRemove", async (reaction, user) => {
+        if (user.bot) return;
+        const roleId = roleMappings[reaction.emoji.name];
+        if (!roleId) return;
+
+        const guild = reaction.message.guild;
+        const member = await guild.members.fetch(user.id);
+        if (!member) return;
+
+        await member.roles.remove(roleId);
+        console.log(`❌ Removed role ${roleId} from ${user.tag}`);
+    });
+
+    console.log("🔹 Reaction role listeners registered.");
 };
