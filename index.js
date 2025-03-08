@@ -149,15 +149,15 @@ client.once("ready", async () => {
         await reactionRolesUnlock2.execute(client);
 
         const reactionRolesUnlock3 = require("./events/reactionRoles_unlockchannel3.js");
-        await reactionRolesUnlock3.execute(client); // Send the message
-        reactionRolesUnlock3.registerListeners(client); // Attach listeners
+        await reactionRolesUnlock3.execute(client); 
+        reactionRolesUnlock3.registerListeners(client); 
         
 
-        console.log("ℹ️ Running reactionRoles_PEcall.js..."); // ADD THIS LINE
+        console.log("ℹ️ Running reactionRoles_PEcall.js..."); 
         const reactionRoles_PEcall = require("./events/reactionRoles_PEcall.js");
         await reactionRoles_PEcall.execute(client);
 
-        console.log("✅ reactionRoles_PEcall.js executed successfully!"); // ADD THIS LINE
+        console.log("✅ reactionRoles_PEcall.js executed successfully!"); 
 
     } catch (error) {
         console.error("❌ Error running reaction role scripts:", error);
