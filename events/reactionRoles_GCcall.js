@@ -1,8 +1,8 @@
 module.exports = {
     name: "reactionRoles_GCcall",
     async execute(client) {
-        const channelId = "1345936577410502716"; // GC call channel
-        const messageContent = `React with 👍 if you want to get pinged for organized events.`;
+        const channelId = "1345936577410502716"; // GC_call channel
+        const messageContent = `React with 👍 if you want to get notified about events.`;
         const roleMappings = { "👍": "1346083963168362601" }; // GC Call role
 
         try {
@@ -22,7 +22,8 @@ module.exports = {
                 console.log("⚠️ GC Call message exists, skipping.");
             }
 
-            module.exports.messageId = botMessage.id; // Store Message ID
+            module.exports.messageId = botMessage.id; // ✅ Store Message ID
+            return botMessage.id; // ✅ Ensure message ID is returned
         } catch (error) {
             console.error("❌ Error in reactionRoles_GCcall:", error);
         }
