@@ -2,7 +2,7 @@ module.exports = {
     name: "reactionRolesPECall",
     async execute(client) {
         const channelId = "1345936577410502716"; // PE_call channel
-        const messageContent = `React with 👍 if you want to get notified about events.`;
+        const messageContent = `React with thumbsup if you want ping everytime there is a organized event.`;
         const roleMappings = { "👍": "1346079729375252512" }; // PE Call role
 
         try {
