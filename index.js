@@ -148,19 +148,69 @@ client.once("ready", async () => {
 
         const reactionRolesUnlock2 = require("./events/reactionRoles_unlockchannel2.js");
         await reactionRolesUnlock2.execute(client);
-
-        const reactionRolesUnlock3 = require("./events/reactionRoles_unlockchannel3.js");
-        await reactionRolesUnlock3.execute(client); 
-        reactionRolesUnlock3.registerListeners(client); 
         
 
-        console.log("ℹ️ Running reactionRoles_PEcall.js..."); 
-        const reactionRoles_PEcall = require("./events/reactionRoles_PEcall.js");
-        await reactionRoles_PEcall.execute(client); // Send the message
-        reactionRoles_PEcall.registerListeners(client); // Attach listeners
+        const reactionRolesUnlock3 = require("./events/reactionRoles_unlockchannel3.js");
+        const reactionRolesPECall = require("./events/reactionRoles_PEcall.js");
 
-        console.log("✅ reactionRoles_PEcall.js executed successfully!"); 
+client.on("ready", async () => {
+    console.log(`✅ Logged in as ${client.user.tag}`);
 
+    await reactionRolesUnlock3.execute(client);
+    await reactionRolesPECall.execute(client);
+
+    console.log("🔹 Reaction role scripts executed.");
+});
+
+client.on("messageReactionAdd", async (reaction, user) => {
+    if (user.bot) return;
+
+    const unlockMsgId = reactionRolesUnlock3.messageId;
+    const peCallMsgId = reactionRolesPECall.messageId;
+
+    let roleId;
+    
+    if (reaction.message.id === unlockMsgId) {
+        roleId = "1346152224564314202"; // Unlock Role
+    } else if (reaction.message.id === peCallMsgId) {
+        roleId = "1346079729375252512"; // PE Call Role
+    } else {
+        return; 
+    }
+
+    try {
+        const member = await reaction.message.guild.members.fetch(user.id);
+        await member.roles.add(roleId);
+        console.log(`✅ Added role ${roleId} to ${user.tag}`);
+    } catch (error) {
+        console.error("❌ Error adding role:", error);
+    }
+});
+
+client.on("messageReactionRemove", async (reaction, user) => {
+    if (user.bot) return;
+
+    const unlockMsgId = reactionRolesUnlock3.messageId;
+    const peCallMsgId = reactionRolesPECall.messageId;
+
+    let roleId;
+    
+    if (reaction.message.id === unlockMsgId) {
+        roleId = "1346152224564314202"; // Unlock Role
+    } else if (reaction.message.id === peCallMsgId) {
+        roleId = "1346079729375252512"; // PE Call Role
+    } else {
+        return; 
+    }
+
+    try {
+        const member = await reaction.message.guild.members.fetch(user.id);
+        await member.roles.remove(roleId);
+        console.log(`❌ Removed role ${roleId} from ${user.tag}`);
+    } catch (error) {
+        console.error("❌ Error removing role:", error);
+    }
+});
     } catch (error) {
         console.error("❌ Error running reaction role scripts:", error);
     }
