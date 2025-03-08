@@ -2,8 +2,8 @@ module.exports = {
     name: "reactionRoles_GCcall",
     async execute(client) {
         const channelId = "1345936577410502716"; // GC call channel
-        const messageContent = `React with ☑️ if you want to get pinged for organized events.`;
-        const roleMappings = { "☑️": "1346083963168362601" }; // GC Call role
+        const messageContent = `React with 👍 if you want to get pinged for organized events.`;
+        const roleMappings = { "👍": "1346083963168362601" }; // GC Call role
 
         try {
             const channel = await client.channels.fetch(channelId);
