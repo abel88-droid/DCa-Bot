@@ -22,7 +22,7 @@ module.exports = {
                 console.log("⚠️ PE Call message exists, skipping.");
             }
 
-            module.exports.messageId = botMessage.id; // Store Message ID
+            return botMessage.id; // ✅ Return message ID instead of setting `module.exports.messageId`
         } catch (error) {
             console.error("❌ Error in reactionRolesPECall:", error);
         }
