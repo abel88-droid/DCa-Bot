@@ -156,7 +156,8 @@ client.once("ready", async () => {
 
         console.log("ℹ️ Running reactionRoles_PEcall.js..."); 
         const reactionRoles_PEcall = require("./events/reactionRoles_PEcall.js");
-        await reactionRoles_PEcall.execute(client);
+        await reactionRoles_PEcall.execute(client); // Send the message
+        reactionRoles_PEcall.registerListeners(client); // Attach listeners
 
         console.log("✅ reactionRoles_PEcall.js executed successfully!"); 
 
