@@ -136,6 +136,7 @@ client.on("interactionCreate", async interaction => {
     }
 });
 
+
 client.once("ready", async () => {
     console.log(`✅ Logged in as ${client.user.tag}!`);
     console.log("ℹ️ Running reaction role scripts...");
@@ -144,13 +145,13 @@ client.once("ready", async () => {
         const reactionRolesUnlock1 = require("./events/reactionRoles_unlockchannel1.js");
         const reactionRolesUnlock2 = require("./events/reactionRoles_unlockchannel2.js");
         const reactionRolesUnlock3 = require("./events/reactionRoles_unlockchannel3.js");
-        const reactionRolesGCcall = require("./events/reactionRoles_GCcall.js");
-        await reactionRolesGCcall.execute(client);
         const reactionRolesPECall = require("./events/reactionRoles_PEcall.js");
+        const reactionRolesGCcall = require("./events/reactionRoles_GCcall.js");
 
         client.reactionRoleMessages = {
             unlockMsgId: await reactionRolesUnlock3.execute(client),
-            peCallMsgId: await reactionRolesPECall.execute(client)
+            peCallMsgId: await reactionRolesPECall.execute(client),
+            gcCallMsgId: await reactionRolesGCcall.execute(client),
         };
 
         await reactionRolesUnlock1.execute(client);
@@ -167,9 +168,11 @@ client.on("messageReactionAdd", async (reaction, user) => {
 
     let roleId;
     if (reaction.message.id === client.reactionRoleMessages.unlockMsgId) {
-        roleId = "1346152224564314202"; // Unlock Role
+        roleId = "1346152224564314202"; // lng
     } else if (reaction.message.id === client.reactionRoleMessages.peCallMsgId) {
         roleId = "1346079729375252512"; // PE Call Role
+    } else if (reaction.message.id === client.reactionRoleMessages.gcCallMsgId) {
+        roleId = "1346083963168362601"; // GC Call Role
     } else {
         return;
     }
@@ -191,6 +194,8 @@ client.on("messageReactionRemove", async (reaction, user) => {
         roleId = "1346152224564314202"; // Unlock Role
     } else if (reaction.message.id === client.reactionRoleMessages.peCallMsgId) {
         roleId = "1346079729375252512"; // PE Call Role
+    } else if (reaction.message.id === client.reactionRoleMessages.gcCallMsgId) {
+        roleId = "1346083963168362601"; // GC Call Role
     } else {
         return;
     }
@@ -203,5 +208,4 @@ client.on("messageReactionRemove", async (reaction, user) => {
         console.error("❌ Error removing role:", error);
     }
 });
-
 client.login(process.env.TOKEN);
