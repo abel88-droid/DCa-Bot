@@ -7,19 +7,26 @@ module.exports = {
     }
 
     const amount = parseInt(args[0]);
+    const noPin = args.includes("-nopin"); // Check if "-nopin" flag is present
 
     if (isNaN(amount) || amount < 1 || amount > 100) {
       return message.reply("Please provide a number between 1 and 100.");
     }
 
     try {
-      await message.channel.bulkDelete(amount, true);
-      
+      let messages = await message.channel.messages.fetch({ limit: amount });
+
+      if (noPin) {
+        messages = messages.filter(msg => !msg.pinned); // Exclude pinned messages
+      }
+
+      await message.channel.bulkDelete(messages, true);
+
       setTimeout(() => {
-        message.channel.send(`✅ Deleted **${amount}** messages.`).then(msg => {
+        message.channel.send(`✅ Deleted **${messages.size}** messages.`).then(msg => {
           setTimeout(() => msg.delete(), 3000);
         });
-      }, 1000); // Delay sending the confirmation message to prevent deletion
+      }, 1000); // Delay sending the confirmation message
 
     } catch (error) {
       console.error(error);
