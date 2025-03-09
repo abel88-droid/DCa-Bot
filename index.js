@@ -150,12 +150,14 @@ client.once("ready", async () => {
         const reactionRolesPECall = require("./events/reactionRoles_PEcall.js");
         const reactionRolesGCcall = require("./events/reactionRoles_GCcall.js");
         const reactionRolesTournament = require("./events/reactionRolesTournament.js");
+        const reactionRolesRules = require("./events/reactionRoles_Rules.js"); 
 
         client.reactionRoleMessages = {
             unlockMsgId: await reactionRolesUnlock3.execute(client),
             peCallMsgId: await reactionRolesPECall.execute(client),
             gcCallMsgId: await reactionRolesGCcall.execute(client),
             tournamentMsgId: await reactionRolesTournament.execute(client),
+            rulesMsgId: await reactionRolesRules.execute(client), 
         };
 
         await reactionRolesUnlock1.execute(client);
@@ -183,6 +185,8 @@ const handleReactionRole = async (reaction, user, add) => {
         } else if (reaction.emoji.name === "🏞️") {
             roleId = "1347890535343456276";
         }
+    } else if (reaction.message.id === client.reactionRoleMessages.rulesMsgId) { 
+        roleId = "1345651591583367168"; 
     } else {
         return;
     }
