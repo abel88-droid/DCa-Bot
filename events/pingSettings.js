@@ -24,11 +24,10 @@ module.exports = {
         return; 
       }
 
-      
       await channel.send(fullMessage);
       await channel.send("<https://discord.com/channels/839529596370419773/839907517663936612/1103713190803677305>");
-});
-    } catch (error) {
+      
+    } catch (error) {  // <-- Removed extra `)`
       console.error("Error sending message:", error);
     }
   }
