@@ -9,7 +9,7 @@ module.exports = {
 
     const channel = message.channel;
     const firstLine = "If you have it you will be on ping list and vice versa."; // First line to check
-    const fullMessage = `${firstLine}\nScroll to the top👆`;
+    const fullMessage = `${firstLine}\nScroll to the top👆<#840008978162>`;
 
     try {
       
