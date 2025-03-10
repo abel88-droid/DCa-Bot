@@ -27,7 +27,7 @@ module.exports = {
       
       await channel.send({
         content: fullMessage,
-        files: ["https://cdn.discordapp.com/attachments/839907517663936612/1103713190593953872/20230504_180004.jpg?ex=67ce6442&is=67cd12c2&hm=52763e61604eb3f69b49a3eaca2e96015c17360c523441d3e67c5a22abd26c54&"], 
+        files: ["https://discord.com/channels/839529596370419773/839907517663936612/1103713190803677305"], 
       });
 
     } catch (error) {
