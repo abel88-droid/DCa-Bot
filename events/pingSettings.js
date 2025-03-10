@@ -26,10 +26,8 @@ module.exports = {
 
       
       await channel.send({
-        content: fullMessage,
-        files: ["https://discord.com/channels/839529596370419773/839907517663936612/1103713190803677305"], 
-      });
-
+  content: `${fullMessage}\n<https://discord.com/channels/839529596370419773/839907517663936612/1103713190803677305>`,
+});
     } catch (error) {
       console.error("Error sending message:", error);
     }
