@@ -1,6 +1,6 @@
 const { Client, GatewayIntentBits } = require("discord.js");
 
-const channelId = "1239880291523366942"; 
+const channelId = "1345936577410502716"; 
 const firstLine = "It's not necessary to join every time it's reset."; 
 const fullMessage = 
   `${firstLine}\nIf you are in doubt about what you will get pinged for, check your roles. You should have some of these:`;
