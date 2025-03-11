@@ -29,7 +29,7 @@ module.exports = {
         .setTitle("Ping Settings")
         .setDescription(fullMessage)
         .setColor(0x3498db) // Blue color
-        .setImage("https://discord.com/channels/839529596370419773/839907517663936612/1103713190803677305") // Replace with actual image URL
+        .setImage("https://cdn.discordapp.com/attachments/1341563215611433035/1349012518915539004/20230504_180004-1.jpg?ex=67d18d4f&is=67d03bcf&hm=37688a5b7897d910b2e63227b006459c68b4e74c9bd7d48b5c50f81451766c73&") // Replace with actual image URL
         .setFooter({ text: "Scroll to the top ☝" });
 
       await channel.send({ embeds: [embed] });
