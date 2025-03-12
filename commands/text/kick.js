@@ -26,25 +26,40 @@ module.exports = {
 
     // DM Embed
     const dmEmbed = new EmbedBuilder()
-      .setColor("#FF0000")
+      .setColor(0xFF0000)
       .setTitle(`You have been ${action}`)
       .setDescription(`You have been **${action}** from **${message.guild.name}**.`)
-      .addFields({ name: "Reason", value: reason })
-      .setFooter({ text: "If you think this is a mistake, please contact |DC|SockS#0724, dc_devil. or Gorilla Kurt#2758." })
+      .addFields(
+        { name: "Reason", value: reason },
+        { name: "Need Help?", value: "If you think this is a mistake, please contact:\n- |DC|SockS#0724\n- dc_devil.\n- Gorilla Kurt#2758." } // Moved to a separate field
+      )
       .setTimestamp();
 
-    member.send({ embeds: [dmEmbed] }).catch(() => {
-      console.log(`Could not send DM to ${member.user.tag}`);
-    });
-
-    // Kick the user
-    member.kick(reason)
+    // Try sending the DM first
+    member.send({ embeds: [dmEmbed] })
       .then(() => {
-        message.reply(`Successfully kicked **${member.user.tag}**. Reason: ${reason}`);
+        // If DM is successful, kick the user
+        member.kick(reason)
+          .then(() => {
+            message.reply(`Successfully kicked **${member.user.tag}**. Reason: ${reason}`);
+          })
+          .catch(error => {
+            console.error(error);
+            message.reply("An error occurred while trying to kick the user.");
+          });
       })
-      .catch(error => {
-        console.error(error);
-        message.reply("An error occurred while trying to kick the user.");
+      .catch(() => {
+        // If DM fails, notify in the server and still kick the user
+        message.reply(`⚠️ Could not send a DM to **${member.user.tag}**, but they will still be kicked.`);
+
+        member.kick(reason)
+          .then(() => {
+            message.reply(`Successfully kicked **${member.user.tag}**. Reason: ${reason}`);
+          })
+          .catch(error => {
+            console.error(error);
+            message.reply("An error occurred while trying to kick the user.");
+          });
       });
   },
 };
