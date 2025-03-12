@@ -26,7 +26,7 @@ module.exports = {
 
     // DM Embed
     const dmEmbed = new EmbedBuilder()
-      .setColor("RED")
+      .setColor("0xFF0000")
       .setTitle(`You have been ${action}`)
       .setDescription(`You have been **${action}** from **${message.guild.name}**.`)
       .addFields({ name: "Reason", value: reason })
