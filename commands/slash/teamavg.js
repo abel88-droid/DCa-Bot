@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('discord.js');
-const { getAverageScore } = require('../sheets'); 
+const { getAverageScore } = require('../../sheets'); 
 
 module.exports = {
     data: new SlashCommandBuilder()
