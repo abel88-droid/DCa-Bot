@@ -1,6 +1,6 @@
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 
-// Load spreadsheet
+// Loads spreadsheet🐉
 const doc = new GoogleSpreadsheet('1xC6qaHmZhlVWQlOpHCCrh0Eu7nZZJ3fBNlK5qjCXbQg');
 
 async function getTeamScores() {
@@ -21,7 +21,7 @@ async function calculateAverage() {
     if (scores.length === 0) return `No scores found in the spreadsheet`;
 
     const average = scores.reduce((sum, score) => sum + score, 0) / scores.length;
-    return `The average score is ${average.toFixed(2)}`;
+    
+    return `The average score is ${Math.round(average)}`;  // ✅ Round to whole number
 }
-
 module.exports = { getTeamScores, calculateAverage };
