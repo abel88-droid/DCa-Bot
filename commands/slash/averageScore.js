@@ -4,14 +4,22 @@ const { calculateAverage } = require('../../utils/sheets');
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('averagescore')
-        .setDescription('Get the average score from the spreadsheet'), // ✅ No team name needed
+        .setName('averagescr')
+        .setDescription('Get the average score of Discord²')
+        .addStringOption(option =>
+            option.setName('teamcode')  
+                  .setDescription('Enter "dc2" to get Discord²\'s score')
+                  .setRequired(true)),
 
     async execute(interaction) {
-        const response = await calculateAverage(); // ✅ Call without team name
+        const teamCode = interaction.options.getString('teamcode');  
+        
+        let teamName = teamCode === 'dc2' ? 'Discord²' : teamCode;
+        
+        const response = await calculateAverage();
 
         const embed = new EmbedBuilder()
-            .setTitle(`Average Score`)
+            .setTitle(`Average score of ${teamName}`)
             .setDescription(response)
             .setColor('#00FF00');
 
