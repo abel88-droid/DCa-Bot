@@ -4,7 +4,7 @@ const { GoogleSpreadsheet } = require('google-spreadsheet');
 const doc = new GoogleSpreadsheet('1xC6qaHmZhlVWQlOpHCCrh0Eu7nZZJ3fBNlK5qjCXbQg');
 
 async function getTeamScores(teamName) {
-    await doc.useServiceAccountAuth(require('../../credentials.json'));
+    await doc.useServiceAccountAuth(require('../credentials.json'));
     await doc.loadInfo();
     const sheet = doc.sheetsByIndex[0]; // Assuming first sheet
 
