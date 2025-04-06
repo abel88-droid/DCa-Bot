@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed } = require('discord.js');
-const { calculateAverage } = require('../utils/sheets');
+const { calculateAverage } = require('../../utils/sheets');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('averageSCR')
