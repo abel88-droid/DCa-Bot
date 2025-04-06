@@ -3,7 +3,7 @@ const { MessageEmbed } = require('discord.js');
 const { calculateAverage } = require('../../utils/sheets');
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('averageSCR')
+        .setName('averagescore')
         .setDescription('Get the average score of a team')
         .addStringOption(option =>
             option.setName('teamName')
