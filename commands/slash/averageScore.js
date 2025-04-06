@@ -6,7 +6,7 @@ module.exports = {
         .setName('averagescore')
         .setDescription('Get the average score of a team')
         .addStringOption(option =>
-            option.setName('teamName')
+            option.setName('teamname')
                   .setDescription('Name of the team')
                   .setRequired(true)),
     async execute(interaction) {
