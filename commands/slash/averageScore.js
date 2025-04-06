@@ -1,23 +1,17 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { EmbedBuilder } = require('discord.js');  // ✅ Fix for discord.js v14+
+const { EmbedBuilder } = require('discord.js');  
 const { calculateAverage } = require('../../utils/sheets');
 
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('averagescore')
-        .setDescription('Get the average score of a team')
-        .addStringOption(option =>
-            option.setName('teamname')  // ✅ Keep this lowercase
-                  .setDescription('Name of the team')
-                  .setRequired(true)),
+        .setDescription('Get the average score from the spreadsheet'), // ✅ No team name needed
 
     async execute(interaction) {
-        const teamName = interaction.options.getString('teamname');  // ✅ Fix: Use lowercase here
-        const response = await calculateAverage(teamName);
+        const response = await calculateAverage(); // ✅ Call without team name
 
-        // ✅ Fix: Replace MessageEmbed with EmbedBuilder
         const embed = new EmbedBuilder()
-            .setTitle(`Average Score for ${teamName}`)
+            .setTitle(`Average Score`)
             .setDescription(response)
             .setColor('#00FF00');
 
