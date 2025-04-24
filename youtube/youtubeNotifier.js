@@ -5,6 +5,7 @@ const fs = require("fs");
 require("dotenv").config();
 
 const SENT_VIDEOS_FILE = "./youtube/sentVideos.json";
+const FEEDS_FILE = "./youtube/feeds.json";
 
 if (!fs.existsSync(path.join(__dirname, "youtube"))) {
   fs.mkdirSync(path.join(__dirname, "youtube"), { recursive: true });
@@ -15,19 +16,19 @@ const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
 });
 
-const YOUTUBE_CHANNELS = {
-  "UCyL-QGEkA1r7R7U5rN_Yonw": { discordChannel: "1341719063780393031", name: "Vereshchak" },
-  "UC16xML3oyIZDeF3g8nnV6MA": { discordChannel: "1341719063780393031", name: "Vokope" },
-  "UCBrnPp4lpRukfuvXUiRz6_A": { discordChannel: "1341719134135779389", name: "Soulis HCR2" },
-  "UCwxuNdbZ-nK5oUEeY1tY9CQ": { discordChannel: "1341719134135779389", name: "tas HCR2" },
-  "UCBHmJJ0PN-efNW5PFdJ4EDQ": { discordChannel: "1341719134135779389", name: "PROJECT GER" },
-  "UCv_5HRU2ctFoYNeWFGLNoXw": { discordChannel: "1341719134135779389", name: "Exodus Hcr2" },
-  "UCF0iJo2klF-QGxzDDmOkQbQ": { discordChannel: "1341719134135779389", name: "Zorro HCR2" },
-  "UCnCaLcVf4YsPcsvi6PE4m6A": { discordChannel: "1341733821707452437", name: "ChillHcr2Guy" },
-};
+// Load feeds.json
+let YOUTUBE_CHANNELS = {};
+if (fs.existsSync(FEEDS_FILE)) {
+  try {
+    YOUTUBE_CHANNELS = JSON.parse(fs.readFileSync(FEEDS_FILE, "utf8"));
+  } catch (error) {
+    console.error("Error reading feeds.json:", error);
+  }
+} else {
+  console.error("feeds.json not found!");
+}
 
 let sentVideos = {};
-
 if (fs.existsSync(SENT_VIDEOS_FILE)) {
   try {
     sentVideos = JSON.parse(fs.readFileSync(SENT_VIDEOS_FILE, "utf8"));
