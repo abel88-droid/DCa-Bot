@@ -208,4 +208,11 @@ const handleReactionRole = async (reaction, user, add) => {
 client.on("messageReactionAdd", (reaction, user) => handleReactionRole(reaction, user, true));
 client.on("messageReactionRemove", (reaction, user) => handleReactionRole(reaction, user, false));
 
+const express = require('express');
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.get('/', (req, res) => res.send('Bot is alive!'));
+app.listen(PORT, () => console.log(`Web server running on port ${PORT}`));
+
 client.login(process.env.TOKEN);
