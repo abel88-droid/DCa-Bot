@@ -29,12 +29,16 @@ if (fs.existsSync(FEEDS_FILE)) {
 }
 
 let sentVideos = {};
-if (fs.existsSync(SENT_VIDEOS_FILE)) {
-  try {
-    sentVideos = JSON.parse(fs.readFileSync(SENT_VIDEOS_FILE, "utf8"));
-  } catch (error) {
-    console.error("Error reading sentVideos.json:", error);
+try {
+  if (fs.existsSync(SENT_VIDEOS_FILE)) {
+    const data = fs.readFileSync(SENT_VIDEOS_FILE, "utf8");
+    sentVideos = data ? JSON.parse(data) : {};
+  } else {
+    fs.writeFileSync(SENT_VIDEOS_FILE, JSON.stringify({}, null, 2));
   }
+} catch (error) {
+  console.error("Error handling sentVideos.json:", error);
+  sentVideos = {};
 }
 
 async function checkYouTube() {
