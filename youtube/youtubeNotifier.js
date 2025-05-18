@@ -48,10 +48,15 @@ async function checkYouTube() {
       const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
 
       // Ensure channel has a video history array
-      if (!sentVideos[youtubeId]) sentVideos[youtubeId] = [];
+      // First time tracking this channel
+        if (!sentVideos[youtubeId]) {
+         sentVideos[youtubeId] = [videoId]; // Save current video but don't send it
+         fs.writeFileSync(SENT_VIDEOS_FILE, JSON.stringify(sentVideos, null, 2));
+          continue; // Skip sending message
+}
 
-      // If this video hasn't been sent yet
-      if (!sentVideos[youtubeId].includes(videoId)) {
+// Already tracking — check if this video is new
+if (!sentVideos[youtubeId].includes(videoId)) {
         const channel = client.channels.cache.get(discordChannel);
         if (channel) {
           await channel.send(`**${name}** uploaded a new video!\n${videoUrl}`);
