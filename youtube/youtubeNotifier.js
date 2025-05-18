@@ -47,16 +47,24 @@ async function checkYouTube() {
       const videoId = latestVideo.id.split(":").pop();
       const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
 
-      if (!sentVideos[youtubeId] || sentVideos[youtubeId] !== videoId) {
-        sentVideos[youtubeId] = videoId;
+      // Ensure channel has a video history array
+      if (!sentVideos[youtubeId]) sentVideos[youtubeId] = [];
+
+      // If this video hasn't been sent yet
+      if (!sentVideos[youtubeId].includes(videoId)) {
+        const channel = client.channels.cache.get(discordChannel);
+        if (channel) {
+          await channel.send(`**${name}** uploaded a new video!\n${videoUrl}`);
+        }
+
+        // Update sent history (add to front, keep only latest 5)
+        sentVideos[youtubeId].unshift(videoId);
+        sentVideos[youtubeId] = sentVideos[youtubeId].slice(0, 5); // Keep only last 5
+
         try {
           fs.writeFileSync(SENT_VIDEOS_FILE, JSON.stringify(sentVideos, null, 2));
         } catch (error) {
           console.error("Error saving sentVideos.json:", error);
-        }
-        const channel = client.channels.cache.get(discordChannel);
-        if (channel) {
-          await channel.send(`**${name}** uploaded a new video!\n${videoUrl}`);
         }
       }
     } catch (error) {
