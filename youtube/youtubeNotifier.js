@@ -5,7 +5,7 @@ const fs = require("fs");
 require("dotenv").config();
 
 const SENT_VIDEOS_FILE = "./youtube/sentVideos.json";
-const FEEDS_FILE = "./youtube/feeds.json";
+const FEEDS_FILE = "./feed.json";
 
 if (!fs.existsSync(path.join(__dirname, "youtube"))) {
   fs.mkdirSync(path.join(__dirname, "youtube"), { recursive: true });
