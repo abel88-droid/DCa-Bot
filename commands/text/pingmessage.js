@@ -8,22 +8,18 @@ module.exports = {
     }
 
     const channel = message.channel;
-    const firstLine = "If you have it you will be on ping list and vice versa."; // First line to check
-    const fullMessage = `${firstLine}\nScroll to the top👆<#840008978162>`;
+    const targetMessage = "Scroll to the top👆<#1347213407530782754>"; // Updated message to check and send
 
     try {
-      
       const messages = await channel.messages.fetch({ limit: 10 });
 
-      
-      const existingMessage = messages.find(m => m.content.startsWith(firstLine));
+      const existingMessage = messages.find(m => m.content === targetMessage);
 
       if (existingMessage) {
         return message.reply("✅ The message already exists.");
       }
 
-      
-      await channel.send(fullMessage);
+      await channel.send(targetMessage);
 
     } catch (error) {
       console.error("Error sending message:", error);
