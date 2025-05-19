@@ -32,7 +32,7 @@ A minimal, frontend-only dashboard that uses the **GitHub API** to directly mana
 - **Hosting:** Render (Bot) | Vercel (Dashboard)
 
 ## Contributors
--**Drago**
--**Devil**
--**BlackWing**
+- **Drago**
+- **Devil**
+- **BlackWing**
 
