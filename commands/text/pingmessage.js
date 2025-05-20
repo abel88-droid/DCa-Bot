@@ -8,7 +8,7 @@ module.exports = {
     }
 
     const channel = message.channel;
-    const targetMessage = "Scroll to the top👆<#1347213407530782754>"; // Updated message to check and send
+    const targetMessage = "Scroll to the top👆<#1374327742862069841"; // Updated message to check and send
 
     try {
       const messages = await channel.messages.fetch({ limit: 10 });
