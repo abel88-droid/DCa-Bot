@@ -28,39 +28,42 @@ module.exports = {
     const chestLevel = interaction.options.getInteger('chestlevel');
     const screenshot = interaction.options.getAttachment('screenshot');
 
+    // Helper to extract mention and user ID
     const resolveUser = async (input) => {
       const mentionMatch = input.match(/^<@!?(\d+)>$/);
       if (mentionMatch) {
         const userId = mentionMatch[1];
         try {
           const member = await interaction.guild.members.fetch(userId);
-          return `<@${member.user.id}>`;
+          return { mention: `<@${member.user.id}>`, id: member.user.id };
         } catch {
-          return input;
+          return { mention: input, id: null };
         }
       }
-      return input;
+      return { mention: input, id: null };
     };
 
-    const first = await resolveUser(interaction.options.getString('first'));
-    const second = await resolveUser(interaction.options.getString('second'));
-    const third = await resolveUser(interaction.options.getString('third'));
+    const firstUser = await resolveUser(interaction.options.getString('first'));
+    const secondUser = await resolveUser(interaction.options.getString('second'));
+    const thirdUser = await resolveUser(interaction.options.getString('third'));
+
+    const rewardRoleId = '1137828749753188382';
 
     const embed = new EmbedBuilder()
       .setColor(0x1abc9c)
-      .setTitle(' Top 3 KM Drivers of the Week ')
+      .setTitle('Top 3 KM Drivers of the Week')
       .setDescription(`
 ${pingRole}
 
 We got **level ${chestLevel} chest!** this time🔥, Let's aim higher next time!💪🏻
 
 Our top 3 km drivers for this week are :
-🥇 1st: ${first}
-🥈 2nd: ${second}
-🥉 3rd: ${third}
+🥇 1st: ${firstUser.mention}
+🥈 2nd: ${secondUser.mention}
+🥉 3rd: ${thirdUser.mention}
 
-Good work, top 3 drivers 🎉 and they have earned <@&1137828749753188382> for this week!  
-Let's see who will be the next <@&1137828749753188382>!
+Good work, top 3 drivers 🎉 and they have earned <@&${rewardRoleId}> for this week!  
+Let's see who will be the next <@&${rewardRoleId}>!
 
 Great work out there guys 👏🏻
 
@@ -68,6 +71,12 @@ Also **thanks to the rest of the members for contributing to the kms**.
       `)
       .setImage(screenshot.url);
 
-    await interaction.reply({ embeds: [embed] });
+    await interaction.reply({
+      embeds: [embed],
+      allowedMentions: {
+        users: [firstUser.id, secondUser.id, thirdUser.id].filter(Boolean),
+        roles: [pingRole.id, rewardRoleId],
+      },
+    });
   }
 };
