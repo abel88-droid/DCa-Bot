@@ -1,50 +1,59 @@
-const { SlashCommandBuilder, AttachmentBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('top3te')
     .setDescription('Announce the top 3 winners of the team event')
     .addRoleOption(option =>
-      option.setName('pingrole')
-        .setDescription('Select the role to ping')
-        .setRequired(true)
+      option.setName('pingrole').setDescription('Ping role to tag').setRequired(true)
     )
-    .addUserOption(option =>
-      option.setName('first')
-        .setDescription('First place winner')
-        .setRequired(true)
+    .addStringOption(option =>
+      option.setName('first').setDescription('First place winner (mention or name)').setRequired(true)
     )
-    .addUserOption(option =>
-      option.setName('second')
-        .setDescription('Second place winner')
-        .setRequired(true)
+    .addStringOption(option =>
+      option.setName('second').setDescription('Second place winner (mention or name)').setRequired(true)
     )
-    .addUserOption(option =>
-      option.setName('third')
-        .setDescription('Third place winner')
-        .setRequired(true)
+    .addStringOption(option =>
+      option.setName('third').setDescription('Third place winner (mention or name)').setRequired(true)
     )
     .addAttachmentOption(option =>
-      option.setName('screenshot')
-        .setDescription('Attach the event screenshot')
-        .setRequired(true)
+      option.setName('screenshot').setDescription('Attach the event screenshot').setRequired(true)
     ),
 
   async execute(interaction) {
     const pingRole = interaction.options.getRole('pingrole');
-    const firstUser = interaction.options.getUser('first');
-    const secondUser = interaction.options.getUser('second');
-    const thirdUser = interaction.options.getUser('third');
     const screenshot = interaction.options.getAttachment('screenshot');
 
-    const first = firstUser ? firstUser.toString() : '`User not found`';
-    const second = secondUser ? secondUser.toString() : '`User not found`';
-    const third = thirdUser ? thirdUser.toString() : '`User not found`';
+    // Helper function to resolve user mention or fallback
+    async function resolveUser(input) {
+      const mentionMatch = input.match(/^<@!?(\d+)>$/);
+      if (mentionMatch) {
+        const userId = mentionMatch[1];
+        try {
+          const member = await interaction.guild.members.fetch(userId);
+          return `<@${member.user.id}>`; // valid mention
+        } catch (err) {
+          return input; // invalid ID or not in server
+        }
+      }
+      return input; // plain name
+    }
+
+    // Resolve all positions
+    const firstRaw = interaction.options.getString('first');
+    const secondRaw = interaction.options.getString('second');
+    const thirdRaw = interaction.options.getString('third');
+
+    const first = await resolveUser(firstRaw);
+    const second = await resolveUser(secondRaw);
+    const third = await resolveUser(thirdRaw);
 
     const embed = new EmbedBuilder()
       .setColor(0xFFD700)
       .setTitle('🏆 Top 3 Winners - Team Event 🏆')
       .setDescription(`
+${pingRole}
+
 Here are the top 3 scorers:
 
 🥇 **First Position:** ${first}
@@ -61,10 +70,6 @@ And **thanks to the rest of the team** for your contribution.
       `)
       .setImage(screenshot.url);
 
-    await interaction.reply({
-      content: `${pingRole}`, // Pings the selected role
-      embeds: [embed],
-      allowedMentions: { roles: [pingRole.id] } // Makes sure the role ping is actually sent
-    });
+    await interaction.reply({ embeds: [embed] });
   }
 };
