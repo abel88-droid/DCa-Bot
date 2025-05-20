@@ -2,7 +2,7 @@ const { SlashCommandBuilder, AttachmentBuilder, EmbedBuilder } = require('discor
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName('topwinners')
+    .setName('top-3-TE')
     .setDescription('Announce the top 3 winners of the team event')
     .addUserOption(option => option.setName('first').setDescription('First place winner').setRequired(true))
     .addUserOption(option => option.setName('second').setDescription('Second place winner').setRequired(true))
