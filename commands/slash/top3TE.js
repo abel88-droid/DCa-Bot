@@ -52,13 +52,13 @@ module.exports = {
       .setColor(0xFFD700)
       .setTitle('🏆 Top 3 Winners - Team Event 🏆')
       .setDescription(`
-${pingRole}
+<&${pingRole}>
 
 Here are the top 3 scorers:
 
-🥇 **First Position:** ${first}
-🥈 **Second Position:** ${second}
-🥉 **Third Position:** ${third}
+🥇 **First Position:** <&${first}>
+🥈 **Second Position:** <&${second}>
+🥉 **Third Position:** <&${third}>
 
 Congratulations to all three podium winners! 🎉🎊
 
