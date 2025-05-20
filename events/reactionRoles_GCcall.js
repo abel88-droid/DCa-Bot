@@ -1,9 +1,9 @@
 module.exports = {
     name: "reactionRolesGCcall",
     async execute(client) {
-        const channelId = "1345936577410502716"; // GC_call channel
+        const channelId = "839907517663936612"; // GC_call channel
         const messageContent = `React with thumbs up if you want ping in every changes of <#840008978162647071> . If you don't choose it, you will still get an ping on weekly basis when it's done.`;
-        const roleMappings = { "👍": "1346083963168362601" }; // GC Call role
+        const roleMappings = { "👍": "1026142060937498685" }; // GC Call role
 
         try {
             const channel = await client.channels.fetch(channelId);
