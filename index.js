@@ -174,7 +174,7 @@ const handleReactionRole = async (reaction, user, add) => {
 
     let roleId;
     if (reaction.message.id === client.reactionRoleMessages.unlockMsgId) {
-        roleId = "1346152224564314202";
+        roleId = "842089922768797726";
     } else if (reaction.message.id === client.reactionRoleMessages.peCallMsgId) {
         roleId = "840250757235212339";
     } else if (reaction.message.id === client.reactionRoleMessages.gcCallMsgId) {
