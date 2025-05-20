@@ -1,9 +1,9 @@
 module.exports = {
     name: "reactionRolesPECall",
     async execute(client) {
-        const channelId = "1345936577410502716"; // PE_call channel
+        const channelId = "839907517663936612"; // PE_call channel
         const messageContent = `React with thumbsup if you want ping everytime there is a organized event.`;
-        const roleMappings = { "👍": "1346079729375252512" }; // PE Call role
+        const roleMappings = { "👍": "840250757235212339" }; // PE Call role
 
         try {
             const channel = await client.channels.fetch(channelId);
