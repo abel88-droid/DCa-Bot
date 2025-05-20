@@ -53,14 +53,14 @@ module.exports = {
       .setColor(0x1abc9c)
       .setTitle('Top 3 KM Drivers of the Week')
       .setDescription(`
-<@&${pingRole}>
+<@&${pingRole.id}>
 
 We got **level ${chestLevel} chest!** this time🔥, Let's aim higher next time!💪🏻
 
 Our top 3 km drivers for this week are :
-🥇 1st: <@&${firstUser.mention}>
-🥈 2nd: <@&${secondUser.mention}>
-🥉 3rd: <@&${thirdUser.mention}>
+🥇 1st: ${firstUser.mention}
+🥈 2nd: ${secondUser.mention}
+🥉 3rd: ${thirdUser.mention}
 
 Good work, top 3 drivers 🎉 and they have earned <@&${rewardRoleId}> for this week!  
 Let's see who will be the next <@&${rewardRoleId}>!
