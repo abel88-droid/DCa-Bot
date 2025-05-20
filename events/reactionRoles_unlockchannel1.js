@@ -12,10 +12,10 @@ module.exports = {
             ]
         }); 
 
-        const channelId = "1239880291523366942"; 
+        const channelId = "840310137390104627"; 
         const roleMappings = {
-            "🇦": "1345784949256491109", // singame
-            "🇧": "1345785058979483730", // offbase
+            "🇦": "840250774704488479", // singame
+            "🇧": "840332933365497877", // offbase
         };
 
         client.once("ready", async () => {
