@@ -4,6 +4,9 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName('top3km')
     .setDescription('Announce the top 3 KM drivers of the week')
+    .addRoleOption(option =>
+      option.setName('pingrole').setDescription('Ping role to mention at the top').setRequired(true)
+    )
     .addIntegerOption(option =>
       option.setName('chestlevel').setDescription('Chest level achieved').setRequired(true)
     )
@@ -21,6 +24,7 @@ module.exports = {
     ),
 
   async execute(interaction) {
+    const pingRole = interaction.options.getRole('pingrole');
     const chestLevel = interaction.options.getInteger('chestlevel');
     const screenshot = interaction.options.getAttachment('screenshot');
 
@@ -38,18 +42,16 @@ module.exports = {
       return input;
     };
 
-    const firstRaw = interaction.options.getString('first');
-    const secondRaw = interaction.options.getString('second');
-    const thirdRaw = interaction.options.getString('third');
-
-    const first = await resolveUser(firstRaw);
-    const second = await resolveUser(secondRaw);
-    const third = await resolveUser(thirdRaw);
+    const first = await resolveUser(interaction.options.getString('first'));
+    const second = await resolveUser(interaction.options.getString('second'));
+    const third = await resolveUser(interaction.options.getString('third'));
 
     const embed = new EmbedBuilder()
       .setColor(0x1abc9c)
-      .setTitle('Top 3 KM Drivers of the Week')
+      .setTitle(' Top 3 KM Drivers of the Week ')
       .setDescription(`
+${pingRole}
+
 We got **level ${chestLevel} chest!** this time🔥, Let's aim higher next time!💪🏻
 
 Our top 3 km drivers for this week are :
