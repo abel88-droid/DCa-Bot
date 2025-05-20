@@ -1,9 +1,9 @@
 module.exports = {
     name: "reactionRolesUnlock3",
     async execute(client) {
-        const channelId = "1239880291523366942"; // Unlock channel 3
+        const channelId = "840310137390104627"; // Unlock channel 3
         const messageContent = `If you want to speak in other language choose ☑️ to select that.`;
-        const roleMappings = { "☑️": "1346152224564314202" }; // Unlock role
+        const roleMappings = { "☑️": "842089922768797726" }; // Unlock role
 
         try {
             const channel = await client.channels.fetch(channelId);
