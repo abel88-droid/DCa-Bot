@@ -181,9 +181,9 @@ const handleReactionRole = async (reaction, user, add) => {
         roleId = "1026142060937498685";
     } else if (reaction.message.id === client.reactionRoleMessages.tournamentMsgId) {
         if (reaction.emoji.name === "🏁") {
-            roleId = "1347890213296410644";
+            roleId = "963429908619616286";
         } else if (reaction.emoji.name === "🏞️") {
-            roleId = "1347890535343456276";
+            roleId = "1103695688363159572";
         }
     } else if (reaction.message.id === client.reactionRoleMessages.rulesMsgId) { 
         roleId = "1345651591583367168"; 
