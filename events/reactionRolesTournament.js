@@ -1,7 +1,7 @@
 module.exports = {
     name: "reactionRolesTournament",
     async execute(client) {
-        const channelId = "1239880291523366942"; // tourn
+        const channelId = "840310137390104627"; // tourn
         const messageContent = `**If you want to participate in tournament or socialise in a competitive way in adventure, choose the one you like.**
 
 Tournament choose 🏁  
