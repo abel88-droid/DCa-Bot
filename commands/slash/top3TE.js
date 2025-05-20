@@ -2,18 +2,44 @@ const { SlashCommandBuilder, AttachmentBuilder, EmbedBuilder } = require('discor
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName('top-3-TE')
+    .setName('top3te')
     .setDescription('Announce the top 3 winners of the team event')
-    .addUserOption(option => option.setName('first').setDescription('First place winner').setRequired(true))
-    .addUserOption(option => option.setName('second').setDescription('Second place winner').setRequired(true))
-    .addUserOption(option => option.setName('third').setDescription('Third place winner').setRequired(true))
-    .addAttachmentOption(option => option.setName('screenshot').setDescription('Attach the event screenshot').setRequired(true)),
+    .addRoleOption(option =>
+      option.setName('pingrole')
+        .setDescription('Select the role to ping')
+        .setRequired(true)
+    )
+    .addUserOption(option =>
+      option.setName('first')
+        .setDescription('First place winner')
+        .setRequired(true)
+    )
+    .addUserOption(option =>
+      option.setName('second')
+        .setDescription('Second place winner')
+        .setRequired(true)
+    )
+    .addUserOption(option =>
+      option.setName('third')
+        .setDescription('Third place winner')
+        .setRequired(true)
+    )
+    .addAttachmentOption(option =>
+      option.setName('screenshot')
+        .setDescription('Attach the event screenshot')
+        .setRequired(true)
+    ),
 
   async execute(interaction) {
-    const first = interaction.options.getUser('first');
-    const second = interaction.options.getUser('second');
-    const third = interaction.options.getUser('third');
+    const pingRole = interaction.options.getRole('pingrole');
+    const firstUser = interaction.options.getUser('first');
+    const secondUser = interaction.options.getUser('second');
+    const thirdUser = interaction.options.getUser('third');
     const screenshot = interaction.options.getAttachment('screenshot');
+
+    const first = firstUser ? firstUser.toString() : '`User not found`';
+    const second = secondUser ? secondUser.toString() : '`User not found`';
+    const third = thirdUser ? thirdUser.toString() : '`User not found`';
 
     const embed = new EmbedBuilder()
       .setColor(0xFFD700)
@@ -35,6 +61,10 @@ And **thanks to the rest of the team** for your contribution.
       `)
       .setImage(screenshot.url);
 
-    await interaction.reply({ embeds: [embed] });
+    await interaction.reply({
+      content: `${pingRole}`, // Pings the selected role
+      embeds: [embed],
+      allowedMentions: { roles: [pingRole.id] } // Makes sure the role ping is actually sent
+    });
   }
 };
