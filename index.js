@@ -176,9 +176,9 @@ const handleReactionRole = async (reaction, user, add) => {
     if (reaction.message.id === client.reactionRoleMessages.unlockMsgId) {
         roleId = "1346152224564314202";
     } else if (reaction.message.id === client.reactionRoleMessages.peCallMsgId) {
-        roleId = "1346079729375252512";
+        roleId = "840250757235212339";
     } else if (reaction.message.id === client.reactionRoleMessages.gcCallMsgId) {
-        roleId = "1346083963168362601";
+        roleId = "1026142060937498685";
     } else if (reaction.message.id === client.reactionRoleMessages.tournamentMsgId) {
         if (reaction.emoji.name === "🏁") {
             roleId = "1347890213296410644";
