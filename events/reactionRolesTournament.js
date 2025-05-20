@@ -7,8 +7,8 @@ module.exports = {
 Tournament choose 🏁  
 Adventure choose 🏞️`;
         const roleMappings = {
-            "🏁": "1347890213296410644", // Tournament role ID
-            "🏞️": "1347890535343456276"  // Adventure role ID
+            "🏁": "963429908619616286", // Tournament role ID
+            "🏞️": "1103695688363159572"  // Adventure role ID
         };
 
         try {
