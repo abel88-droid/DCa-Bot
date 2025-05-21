@@ -14,7 +14,9 @@ module.exports = {
     }
 
     try {
-      let messages = await message.channel.messages.fetch({ limit: amount });
+      let messages = await message.channel.messages.fetch({ limit: amount + 1 }); // Fetch an extra message to account for the command itself
+
+      messages = messages.filter(msg => msg.id !== message.id); // Exclude the command message
 
       if (noPin) {
         messages = messages.filter(msg => !msg.pinned); // Exclude pinned messages
