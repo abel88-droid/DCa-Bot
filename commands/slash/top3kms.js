@@ -25,39 +25,26 @@ module.exports = {
 
   async execute(interaction) {
     try {
-      console.log("Executing top3km command...");
-
       const pingRole = interaction.options.getRole('pingrole');
       const chestLevel = interaction.options.getInteger('chestlevel');
       const screenshot = interaction.options.getAttachment('screenshot');
 
-      console.log(`Ping Role ID: ${pingRole.id}`);
+      const getMemberMention = async (input) => {
+        const match = input.match(/<@!?(\d+)>|(\d{17,})/);
+        const userId = match?.[1] || match?.[2];
+        if (!userId) return input;
 
-      const resolveUser = async (input, interaction) => {
-        const idMatch = input.match(/<@!?(\d+)>|(\d{17,})/); // match mention or raw ID
-        const userId = idMatch?.[1] || idMatch?.[2];
-
-        if (userId) {
-          try {
-            const member = await interaction.guild.members.fetch(userId);
-            return { mention: `<@${member.user.id}>`, id: member.user.id };
-          } catch (error) {
-            console.warn(`Could not fetch user ${userId}:`, error);
-            return { mention: `<@${userId}>`, id: userId }; // still try to mention
-          }
+        try {
+          const member = await interaction.guild.members.fetch(userId);
+          return { mention: member.toString(), id: member.id };
+        } catch {
+          return { mention: `<@${userId}>`, id: userId };
         }
-
-        return { mention: input, id: null };
       };
 
-      const firstUser = await resolveUser(interaction.options.getString('first'), interaction);
-      const secondUser = await resolveUser(interaction.options.getString('second'), interaction);
-      const thirdUser = await resolveUser(interaction.options.getString('third'), interaction);
-
-      console.log("Resolved Users:");
-      console.log("1st:", firstUser);
-      console.log("2nd:", secondUser);
-      console.log("3rd:", thirdUser);
+      const first = await getMemberMention(interaction.options.getString('first'));
+      const second = await getMemberMention(interaction.options.getString('second'));
+      const third = await getMemberMention(interaction.options.getString('third'));
 
       const rewardRoleId = '1137828749753188382';
 
@@ -70,9 +57,9 @@ module.exports = {
 We got **level ${chestLevel} chest!** this time🔥, Let's aim higher next time!💪🏻
 
 Our top 3 km drivers for this week are:
-🥇 1st: ${firstUser.mention}
-🥈 2nd: ${secondUser.mention}
-🥉 3rd: ${thirdUser.mention}
+🥇 1st: ${first.mention}
+🥈 2nd: ${second.mention}
+🥉 3rd: ${third.mention}
 
 Good work, top 3 drivers 🎉 and they have earned <@&${rewardRoleId}> for this week!  
 Let's see who will be the next <@&${rewardRoleId}>!
@@ -86,19 +73,14 @@ Also **thanks to the rest of the members for contributing to the kms**.
       await interaction.reply({
         embeds: [embed],
         allowedMentions: {
-          users: [firstUser.id, secondUser.id, thirdUser.id].filter(Boolean),
+          users: [first.id, second.id, third.id].filter(Boolean),
           roles: [pingRole.id, rewardRoleId],
         },
       });
 
-      console.log("Message sent successfully.");
-      
     } catch (error) {
-      console.error("Error executing top3km command:", error);
-      await interaction.reply({
-        content: "Oops! Something went wrong. Please check bot permissions and try again.",
-        ephemeral: true
-      });
+      console.error("Error:", error);
+      await interaction.reply({ content: "Something went wrong!", ephemeral: true });
     }
   }
 };
