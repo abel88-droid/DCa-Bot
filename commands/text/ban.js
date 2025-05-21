@@ -6,10 +6,14 @@ module.exports = {
     }
 
     const targetId = args[0]; // First argument could be a mention or an ID
-    const reason = args.slice(1).join(" ") || "No reason provided";
+    const reason = args.slice(1).join(" "); // Now reason is required
 
     if (!targetId) {
       return message.reply("Please provide a user to ban.");
+    }
+
+    if (!reason) {
+      return message.reply("Please provide a reason for the ban.");
     }
 
     let target = message.mentions.members.first();
