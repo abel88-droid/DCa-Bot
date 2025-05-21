@@ -2,8 +2,8 @@ const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName('teameventsummaryF')
-    .setDescription('Summary of Team Event after Match')
+    .setName('teameventsummary')
+    .setDescription('Summary of Team Event after Match, for formula dc')
     .addStringOption(option =>
       option
         .setName('won_streak')
