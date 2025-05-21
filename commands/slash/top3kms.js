@@ -11,13 +11,13 @@ module.exports = {
       option.setName('chestlevel').setDescription('Chest level achieved').setRequired(true)
     )
     .addStringOption(option =>
-      option.setName('first').setDescription('First place (mention or name)').setRequired(true)
+      option.setName('first').setDescription('First place (mention or ID)').setRequired(true)
     )
     .addStringOption(option =>
-      option.setName('second').setDescription('Second place (mention or name)').setRequired(true)
+      option.setName('second').setDescription('Second place (mention or ID)').setRequired(true)
     )
     .addStringOption(option =>
-      option.setName('third').setDescription('Third place (mention or name)').setRequired(true)
+      option.setName('third').setDescription('Third place (mention or ID)').setRequired(true)
     )
     .addAttachmentOption(option =>
       option.setName('screenshot').setDescription('Attach the event screenshot').setRequired(true)
@@ -33,25 +33,31 @@ module.exports = {
 
       console.log(`Ping Role ID: ${pingRole.id}`);
 
-      // Updated resolveUser function with improved user fetching
       const resolveUser = async (input, interaction) => {
-        const mentionMatch = input.match(/^<@!?(\d+)>$/);
-        if (mentionMatch) {
-          const userId = mentionMatch[1];
+        const idMatch = input.match(/<@!?(\d+)>|(\d{17,})/); // match mention or raw ID
+        const userId = idMatch?.[1] || idMatch?.[2];
+
+        if (userId) {
           try {
             const member = await interaction.guild.members.fetch(userId);
             return { mention: `<@${member.user.id}>`, id: member.user.id };
           } catch (error) {
-            console.error(`Failed to fetch user ${userId}:`, error);
-            return { mention: `<@${userId}>`, id: userId };
+            console.warn(`Could not fetch user ${userId}:`, error);
+            return { mention: `<@${userId}>`, id: userId }; // still try to mention
           }
         }
+
         return { mention: input, id: null };
       };
 
       const firstUser = await resolveUser(interaction.options.getString('first'), interaction);
       const secondUser = await resolveUser(interaction.options.getString('second'), interaction);
       const thirdUser = await resolveUser(interaction.options.getString('third'), interaction);
+
+      console.log("Resolved Users:");
+      console.log("1st:", firstUser);
+      console.log("2nd:", secondUser);
+      console.log("3rd:", thirdUser);
 
       const rewardRoleId = '1137828749753188382';
 
@@ -63,7 +69,7 @@ module.exports = {
 
 We got **level ${chestLevel} chest!** this time🔥, Let's aim higher next time!💪🏻
 
-Our top 3 km drivers for this week are :
+Our top 3 km drivers for this week are:
 🥇 1st: ${firstUser.mention}
 🥈 2nd: ${secondUser.mention}
 🥉 3rd: ${thirdUser.mention}
@@ -89,7 +95,10 @@ Also **thanks to the rest of the members for contributing to the kms**.
       
     } catch (error) {
       console.error("Error executing top3km command:", error);
-      await interaction.reply({ content: "Oops! Something went wrong. Please check bot permissions and try again.", ephemeral: true });
+      await interaction.reply({
+        content: "Oops! Something went wrong. Please check bot permissions and try again.",
+        ephemeral: true
+      });
     }
   }
 };
