@@ -1,7 +1,8 @@
 module.exports = {
   name: "ban",
   async execute(message, args) {
-    if (!message.member.permissions.has("BAN_MEMBERS")) {
+    const { PermissionsBitField } = require("discord.js"); 
+if (!message.member.permissions.has(PermissionsBitField.Flags.BanMembers)) {
       return message.reply("You don't have permission to use this command.");
     }
 
