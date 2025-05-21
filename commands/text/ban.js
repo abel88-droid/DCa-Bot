@@ -5,11 +5,12 @@ module.exports = {
       return message.reply("You don't have permission to use this command.");
     }
 
-    const targetId = args[0]; // First argument should be a user ID
-    const reason = args.slice(1).join(" ");
+    const target = message.mentions.members.first(); // Get mentioned user
+    const targetId = target ? target.id : args[0]; // Use mention or ID
+    const reason = args.slice(target ? 1 : 1).join(" "); // Correctly extract reason
 
     if (!targetId) {
-      return message.reply("Please provide a user ID to ban.");
+      return message.reply("Please mention a user or provide an ID to ban.");
     }
 
     if (!reason) {
@@ -29,7 +30,7 @@ module.exports = {
     // Ban the user by ID
     try {
       await message.guild.bans.create(targetId, { reason });
-      message.channel.send(`**User with ID ${targetId}** has been banned. Reason: **${reason}**`);
+      message.channel.send(`🚨 **<@${targetId}> has been banned.**\nReason: **${reason}**`);
     } catch (error) {
       console.error(error);
       message.reply("Failed to ban the user. They may not exist or already be banned.");
