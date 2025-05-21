@@ -33,23 +33,25 @@ module.exports = {
 
       console.log(`Ping Role ID: ${pingRole.id}`);
 
-      const resolveUser = async (input) => {
+      // Updated resolveUser function with improved user fetching
+      const resolveUser = async (input, interaction) => {
         const mentionMatch = input.match(/^<@!?(\d+)>$/);
         if (mentionMatch) {
           const userId = mentionMatch[1];
           try {
             const member = await interaction.guild.members.fetch(userId);
             return { mention: `<@${member.user.id}>`, id: member.user.id };
-          } catch {
-            return { mention: input, id: null };
+          } catch (error) {
+            console.error(`Failed to fetch user ${userId}:`, error);
+            return { mention: `<@${userId}>`, id: userId };
           }
         }
         return { mention: input, id: null };
       };
 
-      const firstUser = await resolveUser(interaction.options.getString('first'));
-      const secondUser = await resolveUser(interaction.options.getString('second'));
-      const thirdUser = await resolveUser(interaction.options.getString('third'));
+      const firstUser = await resolveUser(interaction.options.getString('first'), interaction);
+      const secondUser = await resolveUser(interaction.options.getString('second'), interaction);
+      const thirdUser = await resolveUser(interaction.options.getString('third'), interaction);
 
       const rewardRoleId = '1137828749753188382';
 
