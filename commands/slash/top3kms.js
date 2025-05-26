@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder } = require('discord.js');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -29,7 +29,6 @@ module.exports = {
       const chestLevel = interaction.options.getInteger('chestlevel');
       const screenshot = interaction.options.getAttachment('screenshot');
 
-      // Helper to resolve user and show fallback name
       const resolveUser = async (input) => {
         const match = input.match(/<@!?(\d+)>|(\d{17,})/);
         const userId = match?.[1] || match?.[2];
@@ -37,15 +36,9 @@ module.exports = {
 
         try {
           const member = await interaction.guild.members.fetch(userId);
-          return {
-            mention: `${member.toString()} (${member.displayName})`,
-            id: member.id
-          };
+          return { mention: `${member.toString()} (${member.displayName})`, id: member.id };
         } catch {
-          return {
-            mention: `<@${userId}> (Unknown User)`,
-            id: userId
-          };
+          return { mention: `<@${userId}> (Unknown User)`, id: userId };
         }
       };
 
@@ -55,10 +48,7 @@ module.exports = {
 
       const rewardRoleId = '1137828749753188382';
 
-      const embed = new EmbedBuilder()
-        .setColor(0x1abc9c)
-        .setTitle('Top 3 KM Drivers of the Week')
-        .setDescription(`
+      const message = `
 <@&${pingRole.id}>
 
 We got **level ${chestLevel} chest!** this time🔥, Let's aim higher next time!💪🏻
@@ -74,11 +64,12 @@ Let's see who will be the next <@&${rewardRoleId}>!
 Great work out there guys 👏🏻
 
 Also **thanks to the rest of the members for contributing to the kms**.
-        `)
-        .setImage(screenshot.url);
+
+${screenshot.url}
+      `;
 
       await interaction.reply({
-        embeds: [embed],
+        content: message,
         allowedMentions: {
           users: [firstUser.id, secondUser.id, thirdUser.id].filter(Boolean),
           roles: [pingRole.id, rewardRoleId],
