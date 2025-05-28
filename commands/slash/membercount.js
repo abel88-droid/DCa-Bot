@@ -30,7 +30,7 @@ Recruitment Status- ${memberData['Discord'].recruitment}
 Number of Players- ${memberData['Discord²'].players}
 Recruitment Status- ${memberData['Discord²'].recruitment}
 
-## Team 3- 🇮🇳 Discord 3™️
+## Team 3- 🇦🇶 Discord 3™
 (Division-I)
 Number of Players- ${memberData['Discord 3™️'].players}
 Recruitment Status- ${memberData['Discord 3™️'].recruitment}
