@@ -2,8 +2,9 @@ const { SlashCommandBuilder } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
 
-// Path to the member counts JSON file
+// Paths to data files
 const dataPath = path.join(__dirname, '../../data/memberCounts.json');
+const messageIdPath = path.join(__dirname, '../../data/messageId.json');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -11,14 +12,24 @@ module.exports = {
     .setDescription('Displays the current member counts for all teams.'),
   async execute(interaction) {
     // Defer the reply since fetching data might take a moment
-    await interaction.deferReply();
+    await interaction.deferReply({ ephemeral: true });
 
     try {
-      // Read the member counts from the JSON file
+      // Read the member counts and message ID data
       const memberData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+      const messageIdData = JSON.parse(fs.readFileSync(messageIdPath, 'utf8'));
 
-      // Format the message using the real team names
-      const message = `
+      const channelId = messageIdData.channelId;
+      let messageId = messageIdData.messageId;
+
+      const channel = await interaction.client.channels.fetch(channelId);
+      if (!channel) {
+        await interaction.editReply('Error: The specified channel was not found.');
+        return;
+      }
+
+      // Format the member count message
+      const messageContent = `
 # Member Count
 ## Team 1- 🇦🇶 Discord 
 (Division-CC)
@@ -40,7 +51,7 @@ Recruitment Status- ${memberData['Discord 3™️'].recruitment}
 Number of Players- ${memberData['Baja DC'].players}
 Recruitment Status- ${memberData['Baja DC'].recruitment}
 
-## Team 5- 🇦🇶 Formula DCx
+## Team 5- 🇦🇶<|control472|> Formula DCx
 (Division-VI)
 Number of Players- ${memberData['Formula DCx'].players}
 Recruitment Status- ${memberData['Formula DCx'].recruitment}
@@ -51,11 +62,30 @@ Number of Players- ${memberData['Rally DCy'].players}
 Recruitment Status- ${memberData['Rally DCy'].recruitment}
       `;
 
-      // Send the message
-      await interaction.editReply(message);
+      // Try to fetch the existing message
+      let targetMessage;
+      if (messageId !== '0') {
+        try {
+          targetMessage = await channel.messages.fetch(messageId);
+        } catch (error) {
+          console.error('Error fetching message:', error);
+        }
+      }
+
+      if (targetMessage) {
+        // If the message exists, edit it
+        await targetMessage.edit(messageContent);
+        await interaction.editReply('Member count message updated successfully!');
+      } else {
+        // If the message doesn't exist, send a new one and store its ID
+        const newMessage = await channel.send(messageContent);
+        messageIdData.messageId = newMessage.id;
+        fs.writeFileSync(messageIdPath, JSON.stringify(messageIdData, null, 2));
+        await interaction.editReply('Member count message created successfully!');
+      }
     } catch (error) {
       console.error('Error executing membercount command:', error);
-      await interaction.editReply('There was an error fetching the member counts. Please try again later.');
+      await interaction.editReply('There was an error processing the member counts. Please try again later.');
     }
   },
 };
