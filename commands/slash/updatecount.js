@@ -2,8 +2,9 @@ const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
 
-// Path to the member counts JSON file
+// Paths to data files
 const dataPath = path.join(__dirname, '../../data/memberCounts.json');
+const messageIdPath = path.join(__dirname, '../../data/messageId.json');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -52,6 +53,7 @@ module.exports = {
 
       // Read the current data
       const memberData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+      const messageIdData = JSON.parse(fs.readFileSync(messageIdPath, 'utf8'));
 
       // Validate the team
       if (!memberData[team]) {
@@ -79,8 +81,72 @@ module.exports = {
       // Write the updated data back to the file
       fs.writeFileSync(dataPath, JSON.stringify(memberData, null, 2));
 
+      // Update the member count message
+      const channelId = messageIdData.channelId;
+      let messageId = messageIdData.messageId;
+
+      const channel = await interaction.client.channels.fetch(channelId);
+      if (!channel) {
+        await interaction.editReply('Error: The specified channel was not found.');
+        return;
+      }
+
+      // Format the updated member count message
+      const messageContent = `
+# Member Count
+## Team 1- 🇦🇶 Discord 
+(Division-CC)
+Number of Players- ${memberData['Discord'].players}
+Recruitment Status- ${memberData['Discord'].recruitment}
+
+## Team 2- 🇦🇶 Discord²
+(Division-CC)
+Number of Players- ${memberData['Discord²'].players}
+Recruitment Status- ${memberData['Discord²'].recruitment}
+
+## Team 3- 🇦🇶 Discord 3™️
+(Division-I)
+Number of Players- ${memberData['Discord 3™️'].players}
+Recruitment Status- ${memberData['Discord 3™️'].recruitment}
+
+## Team 4- 🇦🇶 Baja DC
+(Division-II)
+Number of Players- ${memberData['Baja DC'].players}
+Recruitment Status- ${memberData['Baja DC'].recruitment}
+
+## Team 5- 🇦🇶 Formula DCx
+(Division-VI)
+Number of Players- ${memberData['Formula DCx'].players}
+Recruitment Status- ${memberData['Formula DCx'].recruitment}
+
+## Team 6- 🇦🇶 Rally DCy
+(Division-IV)
+Number of Players- ${memberData['Rally DCy'].players}
+Recruitment Status- ${memberData['Rally DCy'].recruitment}
+      `;
+
+      // Try to fetch the existing message
+      let targetMessage;
+      if (messageId !== '0') {
+        try {
+          targetMessage = await channel.messages.fetch(messageId);
+        } catch (error) {
+          console.error('Error fetching message:', error);
+        }
+      }
+
+      if (targetMessage) {
+        // If the message exists, edit it
+        await targetMessage.edit(messageContent);
+      } else {
+        // If the message doesn't exist, send a new one and store its ID
+        const newMessage = await channel.send(messageContent);
+        messageIdData.messageId = newMessage.id;
+        fs.writeFileSync(messageIdPath, JSON.stringify(messageIdData, null, 2));
+      }
+
       // Reply with confirmation
-      await interaction.editReply(`Updated ${team} ${field} to ${value} successfully! Use /membercount to see the updated list.`);
+      await interaction.editReply(`Updated ${team} ${field} to ${value} successfully! The member count message has been updated.`);
     } catch (error) {
       console.error('Error executing updatecount command:', error);
       await interaction.editReply('There was an error updating the member counts. Please try again later.');
