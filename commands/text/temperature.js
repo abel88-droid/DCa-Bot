@@ -9,7 +9,7 @@ module.exports = {
     const city = args.join(' ');
     if (!city) return message.reply('❗ Please provide a city name.');
 
-    const apiKey = 'b191cb1cecffd0a83908d97e8106743d';
+    const apiKey = 'e059b3064ced30668da71497d1711908';
     const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${apiKey}&units=metric`;
 
     try {
