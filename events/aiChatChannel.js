@@ -2,7 +2,7 @@ const { Events } = require('discord.js');
 const axios = require('axios');
 
 const AI_CHANNEL_ID = '1378800236109107240'; 
-const OPENAI_API_KEY = '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'; // 🟡 Replace this
+const OPENAI_API_KEY ='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'; // 🟡 Replace this
 
 const userConversations = new Map(); // 🧠 Memory
 
