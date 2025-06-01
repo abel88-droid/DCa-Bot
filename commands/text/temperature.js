@@ -21,7 +21,7 @@ module.exports = {
 
       message.channel.send(`${weatherEmoji} The current temperature in **${city}** is **${temp}°C** with **${desc}**.`);
     } catch (err) {
-      console.error(err);
+      console.error(err.response?.data || err.message || err);
       message.reply('⚠️ Could not fetch the weather. Please check the city name or try again later.');
     }
   },
