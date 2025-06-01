@@ -1,10 +1,10 @@
-
 const axios = require('axios');
+const { EmbedBuilder } = require('discord.js');
 
 module.exports = {
   name: 'temperature',
   aliases: ['temp', 'weather'],
-  description: 'Get current temperature of a city.',
+  description: 'Get the current temperature of a city',
   async execute(message, args) {
     const city = args.join(' ');
     if (!city) return message.reply('❗ Please provide a city name.');
@@ -14,26 +14,36 @@ module.exports = {
 
     try {
       const res = await axios.get(url);
-      const temp = res.data.main.temp;
-      const desc = res.data.weather[0].description;
-      const icon = res.data.weather[0].icon;
-      const weatherEmoji = getEmoji(icon);
+      const data = res.data;
 
-      message.channel.send(`${weatherEmoji} The current temperature in **${city}** is **${temp}°C** with **${desc}**.`);
+      const temp = data.main.temp;
+      const feelsLike = data.main.feels_like;
+      const desc = data.weather[0].description;
+      const iconCode = data.weather[0].icon;
+      const humidity = data.main.humidity;
+      const wind = data.wind.speed;
+
+      const embed = new EmbedBuilder()
+        .setTitle(`🌤️ Weather in ${data.name}, ${data.sys.country}`)
+        .setDescription(`${capitalize(desc)}`)
+        .setThumbnail(`http://openweathermap.org/img/wn/${iconCode}@2x.png`)
+        .addFields(
+          { name: '🌡️ Temperature', value: `${temp}°C`, inline: true },
+          { name: 'Feels Like', value: `${feelsLike}°C`, inline: true },
+          { name: '💧 Humidity', value: `${humidity}%`, inline: true },
+          { name: '🌬️ Wind Speed', value: `${wind} m/s`, inline: true }
+        )
+        .setColor(0x1e90ff)
+        .setFooter({ text: 'Powered by OpenWeatherMap' });
+
+      message.channel.send({ embeds: [embed] });
+
     } catch (err) {
-      console.error(err.response?.data || err.message || err);
-      message.reply('⚠️ Could not fetch the weather. Please check the city name or try again later.');
+      console.error(err);
+      message.reply('⚠️ Could not fetch the weather. Please check the city name.');
     }
   },
 };
-
-
-function getEmoji(icon) {
-  if (icon.includes('01')) return '☀️';
-  if (icon.includes('02') || icon.includes('03') || icon.includes('04')) return '☁️';
-  if (icon.includes('09') || icon.includes('10')) return '🌧️';
-  if (icon.includes('11')) return '⛈️';
-  if (icon.includes('13')) return '❄️';
-  if (icon.includes('50')) return '🌫️';
-  return '🌡️';
-}
+function capitalize(text) {
+  return text.charAt(0).toUpperCase() + text.slice(1);
+  }
