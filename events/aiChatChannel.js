@@ -19,13 +19,13 @@ module.exports = {
     history.push({ role: 'user', content: userMessage });
 
     const prompt = history
-      .slice(-6) // keep last 6 exchanges
+      .slice(-6)
       .map(m => (m.role === 'user' ? `User: ${m.content}` : `AI: ${m.content}`))
       .join('\n') + '\nAI:';
 
     try {
       const res = await axios.post(
-        'https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-alpha',
+        'https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.1',
         { inputs: prompt },
         {
           headers: {
@@ -38,7 +38,6 @@ module.exports = {
       const aiReply = res.data?.[0]?.generated_text?.split('AI:')[1]?.trim() || "🤖 Sorry, I couldn't think of a reply!";
       history.push({ role: 'assistant', content: aiReply });
 
-    
       if (history.length > 12) history = history.slice(-12);
       userConversations.set(userId, history);
 
