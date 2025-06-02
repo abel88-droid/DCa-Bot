@@ -1,8 +1,9 @@
 const { Events } = require('discord.js');
 const axios = require('axios');
+require('dotenv').config(); 
 
 const AI_CHANNEL_ID = '1378800236109107240';
-const OPENAI_API_KEY = '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' ; // Your secret key here
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 const userConversations = new Map();
 
@@ -33,7 +34,7 @@ module.exports = {
         },
         {
           headers: {
-            'Authorization': `Bearer ${OPENAI_API_KEY}`,
+            Authorization: `Bearer ${OPENAI_API_KEY}`,
             'Content-Type': 'application/json',
           },
         }
@@ -42,7 +43,6 @@ module.exports = {
       const aiReply = res.data.choices[0].message.content;
       history.push({ role: 'assistant', content: aiReply });
 
-      // Keep recent memory
       if (history.length > 20) history = history.slice(-20);
       userConversations.set(userId, history);
 
