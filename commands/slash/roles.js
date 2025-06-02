@@ -4,7 +4,7 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName("roles")
         .setDescription("Manage roles")
-        .setDefaultMemberPermissions(PermissionFlagsBits.ManageRoles) // Restrict command usage
+        .setDefaultMemberPermissions(PermissionFlagsBits.ManageRoles)
         .addSubcommand(subcommand =>
             subcommand
                 .setName("add")
@@ -33,12 +33,12 @@ module.exports = {
         ),
 
     async execute(interaction) {
-        // Check if the user has the "Manage Roles" permission
+        
         if (!interaction.member.permissions.has(PermissionFlagsBits.ManageRoles)) {
             return interaction.reply({ content: "❌ You don't have permission to use this command.", ephemeral: true });
         }
 
-        // Check if the bot has "Manage Roles" permission
+        
         if (!interaction.guild.members.me.permissions.has(PermissionFlagsBits.ManageRoles)) {
             return interaction.reply({ content: "❌ I need the 'Manage Roles' permission to perform this action.", ephemeral: true });
         }
