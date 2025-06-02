@@ -25,7 +25,7 @@ module.exports = {
 
     try {
       const res = await axios.post(
-        'https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.1',
+        'https://api-inference.huggingface.co/models/tiiuae/falcon-7b-instruct',
         { inputs: prompt },
         {
           headers: {
@@ -44,7 +44,7 @@ module.exports = {
       await message.channel.send(`💬 <@${userId}> ${aiReply}`);
     } catch (err) {
       console.error('Hugging Face Error:', err.response?.data || err.message);
-      await message.channel.send('⚠️ AI is feeling shy right now. Try again later!');
+      await message.channel.send('⚠️ AI is sleeping right now. Try again later!');
     }
   },
 };
