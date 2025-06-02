@@ -72,7 +72,7 @@ module.exports = {
     ),
 
   async execute(interaction) {
-    // Retrieve the input options from the interaction
+    
     const wonStreak = interaction.options.getString('won_streak');
     const lostStreak = interaction.options.getString('lost_streak');
     const topper1 = interaction.options.getString('topper1');
@@ -85,7 +85,7 @@ module.exports = {
     const pingRole = interaction.options.getRole('ping_role');
     const screenshot = interaction.options.getAttachment('screenshot');
 
-    // Create an embed with the summary details
+    
     const summaryEmbed = new EmbedBuilder()
       .setColor(0x0099ff)
       .setTitle('Summary of Team Event after Match')
@@ -104,7 +104,7 @@ module.exports = {
       )
       .setTimestamp();
 
-    // If a screenshot was uploaded, include it as an image in the embed
+    
     if (screenshot) {
       summaryEmbed.setImage(screenshot.url);
     }
@@ -114,8 +114,6 @@ module.exports = {
     if (pingRole) {
       content = `<@&${pingRole.id}>`;
     }
-
-    // Reply by pinging the role (if provided) and showing the embed summary
     await interaction.reply({ content, embeds: [summaryEmbed] });
   },
 };
