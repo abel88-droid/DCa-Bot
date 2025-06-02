@@ -2,7 +2,7 @@ const { SlashCommandBuilder } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
 
-// Paths to data files
+
 const dataPath = path.join(__dirname, '../../data/memberCounts.json');
 const messageIdPath = path.join(__dirname, '../../data/messageId.json');
 
@@ -11,11 +11,10 @@ module.exports = {
     .setName('membercount')
     .setDescription('Displays the current member counts for all teams.'),
   async execute(interaction) {
-    // Defer the reply since fetching data might take a moment
+    
     await interaction.deferReply({ ephemeral: true });
 
     try {
-      // Read the member counts and message ID data
       const memberData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
       const messageIdData = JSON.parse(fs.readFileSync(messageIdPath, 'utf8'));
 
@@ -26,9 +25,7 @@ module.exports = {
       if (!channel) {
         await interaction.editReply('Error: The specified channel was not found.');
         return;
-      }
-
-      // Format the member count message
+      }      
       const messageContent = `
 # Member Count
 ## Team 1- 🇦🇶 Discord 
@@ -51,7 +48,7 @@ Recruitment Status- ${memberData['Discord 3™️'].recruitment}
 Number of Players- ${memberData['Baja DC'].players}
 Recruitment Status- ${memberData['Baja DC'].recruitment}
 
-## Team 5- 🇦🇶<|control472|> Formula DCx
+## Team 5- 🇦🇶 Formula DCx
 (Division-VI)
 Number of Players- ${memberData['Formula DCx'].players}
 Recruitment Status- ${memberData['Formula DCx'].recruitment}
@@ -62,7 +59,7 @@ Number of Players- ${memberData['Rally DCy'].players}
 Recruitment Status- ${memberData['Rally DCy'].recruitment}
       `;
 
-      // Try to fetch the existing message
+      
       let targetMessage;
       if (messageId !== '0') {
         try {
@@ -73,11 +70,9 @@ Recruitment Status- ${memberData['Rally DCy'].recruitment}
       }
 
       if (targetMessage) {
-        // If the message exists, edit it
         await targetMessage.edit(messageContent);
         await interaction.editReply('Member count message updated successfully!');
       } else {
-        // If the message doesn't exist, send a new one and store its ID
         const newMessage = await channel.send(messageContent);
         messageIdData.messageId = newMessage.id;
         fs.writeFileSync(messageIdPath, JSON.stringify(messageIdData, null, 2));
