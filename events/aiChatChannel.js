@@ -20,12 +20,12 @@ module.exports = {
 
     const prompt = history
       .slice(-6)
-      .map(m => (m.role === 'user' ? `User: ${m.content}` : `AI: ${m.content}`))
-      .join('\n') + '\nAI:';
+      .map(m => (m.role === 'user' ? `User: ${m.content}` : `Assistant: ${m.content}`))
+      .join('\n') + '\nAssistant:';
 
     try {
       const res = await axios.post(
-        'https://api-inference.huggingface.co/models/tiiuae/falcon-7b-instruct',
+        'https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-alpha',
         { inputs: prompt },
         {
           headers: {
@@ -35,7 +35,9 @@ module.exports = {
         }
       );
 
-      const aiReply = res.data?.[0]?.generated_text?.split('AI:')[1]?.trim() || "🤖 Sorry, I couldn't think of a reply!";
+      const rawText = res.data.generated_text || res.data[0]?.generated_text;
+      const aiReply = rawText?.split('Assistant:')[1]?.trim() || rawText?.trim() || "🤖 Sorry, I couldn't think of a reply!";
+
       history.push({ role: 'assistant', content: aiReply });
 
       if (history.length > 12) history = history.slice(-12);
