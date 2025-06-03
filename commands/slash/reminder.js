@@ -3,7 +3,7 @@ const ms = require('ms');
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName('remind')
+    .setName('remindme')
     .setDescription('Set a reminder')
     .addStringOption(option =>
       option.setName('duration')
