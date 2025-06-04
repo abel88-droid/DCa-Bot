@@ -4,13 +4,13 @@ const path = require('path');
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('sportscar')
-    .setDescription('Displays tuning parts for the sports car.'),
+    .setDescription('Displays masteries of the sports car.'),
   async execute(interaction) {
     
-    const rev = new AttachmentBuilder(path.join(__dirname, '../images/rev_surge.jpg'));
-    const overdrive = new AttachmentBuilder(path.join(__dirname, '../images/overdrive.jpg'));
-    const mega = new AttachmentBuilder(path.join(__dirname, '../images/mega_tank.jpg'));
-    const extra = new AttachmentBuilder(path.join(__dirname, '../images/extra_part.jpg'));
+    const rev = new AttachmentBuilder(path.join(__dirname, 'images/rev_surge.jpg'));
+    const overdrive = new AttachmentBuilder(path.join(__dirname, 'images/overdrive.jpg'));
+    const mega = new AttachmentBuilder(path.join(__dirname, 'images/mega_tank.jpg'));
+    const extra = new AttachmentBuilder(path.join(__dirname, 'images/extra_part.jpg'));
 
     
     const revEmbed = new EmbedBuilder()
