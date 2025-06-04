@@ -11,13 +11,37 @@ if (!token) {
     process.exit(1);
 }
 
-const commands = [];
-const slashCommandsPath = path.join(__dirname, "commands/slash");
-const slashCommandFiles = fs.readdirSync(slashCommandsPath).filter(file => file.endsWith(".js"));
+// Recursive function to get all .js files in slash commands folder & subfolders
+function getAllSlashCommandFiles(dir) {
+    let results = [];
+    const list = fs.readdirSync(dir);
 
-for (const file of slashCommandFiles) {
-    const command = require(`./commands/slash/${file}`);
-    commands.push(command.data.toJSON());
+    for (const file of list) {
+        const filePath = path.join(dir, file);
+        const stat = fs.statSync(filePath);
+
+        if (stat && stat.isDirectory()) {
+            results = results.concat(getAllSlashCommandFiles(filePath));
+        } else if (file.endsWith(".js")) {
+            results.push(filePath);
+        }
+    }
+
+    return results;
+}
+
+const slashCommandsPath = path.join(__dirname, "commands", "slash");
+const slashCommandFiles = getAllSlashCommandFiles(slashCommandsPath);
+
+const commands = [];
+
+for (const filePath of slashCommandFiles) {
+    const command = require(filePath);
+    if (command.data && typeof command.data.toJSON === "function") {
+        commands.push(command.data.toJSON());
+    } else {
+        console.warn(`⚠️ Slash command at ${filePath} is missing a valid 'data' property.`);
+    }
 }
 
 const rest = new REST({ version: "10" }).setToken(token);
