@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder } = require('discord.js');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -24,22 +24,21 @@ module.exports = {
     const pingRole = interaction.options.getRole('pingrole');
     const screenshot = interaction.options.getAttachment('screenshot');
 
-    // Helper function to resolve user mention or fallback
+    // Helper to resolve a mention if it's a proper user mention
     async function resolveUser(input) {
       const mentionMatch = input.match(/^<@!?(\d+)>$/);
       if (mentionMatch) {
         const userId = mentionMatch[1];
         try {
           const member = await interaction.guild.members.fetch(userId);
-          return `<@${member.user.id}>`; // valid mention
+          return `<@${member.user.id}>`;
         } catch (err) {
-          return input; // invalid ID or not in server
+          return input;
         }
       }
-      return input; // plain name
+      return input;
     }
 
-    // Resolve all positions
     const firstRaw = interaction.options.getString('first');
     const secondRaw = interaction.options.getString('second');
     const thirdRaw = interaction.options.getString('third');
@@ -48,28 +47,23 @@ module.exports = {
     const second = await resolveUser(secondRaw);
     const third = await resolveUser(thirdRaw);
 
-    const embed = new EmbedBuilder()
-      .setColor(0xFFD700)
-      .setTitle('🏆 Top 3 Winners - Team Event 🏆')
-      .setDescription(`
-<&${pingRole}>
+    const message = `
+${pingRole}
 
-Here are the top 3 scorers:
+🏆 **Top 3 Winners - Team Event** 🏆
 
-🥇 **First Position:** <&${first}>
-🥈 **Second Position:** <&${second}>
-🥉 **Third Position:** <&${third}>
+🥇 **First Position:** ${first}  
+🥈 **Second Position:** ${second}  
+🥉 **Third Position:** ${third}
 
-Congratulations to all three podium winners! 🎉🎊
-
+🎉 Congratulations to all three podium winners! 🎊  
 **Great win everyone! Good job!**  
 And **thanks to the rest of the team** for your contribution.  
 
 **See You Next Match**  
 **Good Luck! 🍀**
-      `)
-      .setImage(screenshot.url);
+    `;
 
-    await interaction.reply({ embeds: [embed] });
+    await interaction.reply({ content: message, files: [screenshot.url] });
   }
 };
