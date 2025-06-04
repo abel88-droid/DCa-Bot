@@ -53,21 +53,39 @@ if (fs.existsSync(textCommandsPath)) {
     console.warn("⚠️ 'commands/text' folder not found. No text commands loaded.");
 }
 
-// Load slash (/) commands from "commands/slash/"
+// Load slash (/) commands from "commands/slash/" and subfolders
 const slashCommandsPath = path.join(__dirname, "commands", "slash");
 if (fs.existsSync(slashCommandsPath)) {
-    const slashCommandFiles = fs.readdirSync(slashCommandsPath).filter(file => file.endsWith(".js"));
-    for (const file of slashCommandFiles) {
+    function getAllSlashCommandFiles(dir) {
+        let results = [];
+        const list = fs.readdirSync(dir);
+
+        for (const file of list) {
+            const filePath = path.join(dir, file);
+            const stat = fs.statSync(filePath);
+
+            if (stat && stat.isDirectory()) {
+                results = results.concat(getAllSlashCommandFiles(filePath));
+            } else if (file.endsWith(".js")) {
+                results.push(filePath);
+            }
+        }
+
+        return results;
+    }
+
+    const slashCommandFiles = getAllSlashCommandFiles(slashCommandsPath);
+    for (const filePath of slashCommandFiles) {
         try {
-            const command = require(`./commands/slash/${file}`);
+            const command = require(filePath);
             if (command.data && command.data.name) {
                 client.slashCommands.set(command.data.name, command);
-                console.log(`✅ Loaded slash command: ${command.data.name}`);
+                console.log(`✅ Loaded slash command: ${command.data.name} from ${filePath}`);
             } else {
-                console.warn(`⚠️ Slash command file ${file} is missing a name property.`);
+                console.warn(`⚠️ Slash command file ${filePath} is missing a name property.`);
             }
         } catch (error) {
-            console.error(`❌ Error loading slash command file ${file}:`, error);
+            console.error(`❌ Error loading slash command file ${filePath}:`, error);
         }
     }
 } else {
