@@ -70,7 +70,7 @@ And **thanks to the rest of the team** for your contribution.
       const embed = new EmbedBuilder()
         .setColor(0xFFD700)
         .setTitle('🏅 Team Event Podium Recap')
-        .setDescription('Here’s a snapshot of the winners and celebration!')
+        .setDescription('Here’s a snapshot of the winners!')
         .setImage(screenshot.url)
         .setFooter({ text: 'Keep up the great teamwork!' });
 
