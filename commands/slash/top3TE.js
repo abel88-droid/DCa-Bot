@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -21,34 +21,33 @@ module.exports = {
     ),
 
   async execute(interaction) {
-    try {
-      const pingRole = interaction.options.getRole('pingrole');
-      const screenshot = interaction.options.getAttachment('screenshot');
+    const pingRole = interaction.options.getRole('pingrole');
+    const screenshot = interaction.options.getAttachment('screenshot');
 
-      // Resolve user mention or return as plain name
-      async function resolveUser(input) {
-        const mentionMatch = input.match(/^<@!?(\d+)>$/);
-        if (mentionMatch) {
-          const userId = mentionMatch[1];
-          try {
-            const member = await interaction.guild.members.fetch(userId);
-            return `<@${member.user.id}>`;
-          } catch (err) {
-            return input;
-          }
+    // Helper function to resolve mentions
+    async function resolveUser(input) {
+      const mentionMatch = input.match(/^<@!?(\d+)>$/);
+      if (mentionMatch) {
+        const userId = mentionMatch[1];
+        try {
+          const member = await interaction.guild.members.fetch(userId);
+          return `<@${member.user.id}>`;
+        } catch (err) {
+          return input;
         }
-        return input;
       }
+      return input;
+    }
 
-      const firstRaw = interaction.options.getString('first');
-      const secondRaw = interaction.options.getString('second');
-      const thirdRaw = interaction.options.getString('third');
+    const firstRaw = interaction.options.getString('first');
+    const secondRaw = interaction.options.getString('second');
+    const thirdRaw = interaction.options.getString('third');
 
-      const first = await resolveUser(firstRaw);
-      const second = await resolveUser(secondRaw);
-      const third = await resolveUser(thirdRaw);
+    const first = await resolveUser(firstRaw);
+    const second = await resolveUser(secondRaw);
+    const third = await resolveUser(thirdRaw);
 
-      const message = `
+    const plainTextMessage = `
 ${pingRole}
 
 🏆 **Top 3 Winners - Team Event** 🏆
@@ -63,29 +62,18 @@ And **thanks to the rest of the team** for your contribution.
 
 **See You Next Match**  
 **Good Luck! 🍀**
-      `;
+    `;
 
-      await interaction.reply({
-        content: message,
-        files: [{
-          attachment: screenshot.url,
-          name: screenshot.name
-        }]
-      });
+    const embed = new EmbedBuilder()
+      .setColor(0xFFD700)
+      .setTitle('🏅 Team Event Podium Recap')
+      .setDescription('Here’s a snapshot of the winners and celebration!')
+      .setImage(screenshot.url)
+      .setFooter({ text: 'Keep up the great teamwork!' });
 
-    } catch (error) {
-      console.error('❌ Error in /top3te:', error);
-      if (interaction.replied || interaction.deferred) {
-        await interaction.followUp({
-          content: '⚠️ Something went wrong while executing this command.',
-          ephemeral: true
-        });
-      } else {
-        await interaction.reply({
-          content: '⚠️ Something went wrong while executing this command.',
-          ephemeral: true
-        });
-      }
-    }
+    await interaction.reply({
+      content: plainTextMessage,
+      embeds: [embed],
+    });
   }
 };
