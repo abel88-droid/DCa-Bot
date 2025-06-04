@@ -21,33 +21,36 @@ module.exports = {
     ),
 
   async execute(interaction) {
-    const pingRole = interaction.options.getRole('pingrole');
-    const screenshot = interaction.options.getAttachment('screenshot');
+    try {
+      await interaction.deferReply(); // prevents timeout
 
-    // Helper function to resolve mentions
-    async function resolveUser(input) {
-      const mentionMatch = input.match(/^<@!?(\d+)>$/);
-      if (mentionMatch) {
-        const userId = mentionMatch[1];
-        try {
-          const member = await interaction.guild.members.fetch(userId);
-          return `<@${member.user.id}>`;
-        } catch (err) {
-          return input;
+      const pingRole = interaction.options.getRole('pingrole');
+      const screenshot = interaction.options.getAttachment('screenshot');
+
+      // Helper function to resolve user mentions
+      async function resolveUser(input) {
+        const mentionMatch = input.match(/^<@!?(\d+)>$/);
+        if (mentionMatch) {
+          const userId = mentionMatch[1];
+          try {
+            const member = await interaction.guild.members.fetch(userId);
+            return `<@${member.user.id}>`;
+          } catch (err) {
+            return input;
+          }
         }
+        return input;
       }
-      return input;
-    }
 
-    const firstRaw = interaction.options.getString('first');
-    const secondRaw = interaction.options.getString('second');
-    const thirdRaw = interaction.options.getString('third');
+      const firstRaw = interaction.options.getString('first');
+      const secondRaw = interaction.options.getString('second');
+      const thirdRaw = interaction.options.getString('third');
 
-    const first = await resolveUser(firstRaw);
-    const second = await resolveUser(secondRaw);
-    const third = await resolveUser(thirdRaw);
+      const first = await resolveUser(firstRaw);
+      const second = await resolveUser(secondRaw);
+      const third = await resolveUser(thirdRaw);
 
-    const plainTextMessage = `
+      const plainTextMessage = `
 ${pingRole}
 
 🏆 **Top 3 Winners - Team Event** 🏆
@@ -62,18 +65,27 @@ And **thanks to the rest of the team** for your contribution.
 
 **See You Next Match**  
 **Good Luck! 🍀**
-    `;
+      `;
 
-    const embed = new EmbedBuilder()
-      .setColor(0xFFD700)
-      .setTitle('🏅 Team Event Podium Recap')
-      .setDescription('Here’s a snapshot of the winners and celebration!')
-      .setImage(screenshot.url)
-      .setFooter({ text: 'Keep up the great teamwork!' });
+      const embed = new EmbedBuilder()
+        .setColor(0xFFD700)
+        .setTitle('🏅 Team Event Podium Recap')
+        .setDescription('Here’s a snapshot of the winners and celebration!')
+        .setImage(screenshot.url)
+        .setFooter({ text: 'Keep up the great teamwork!' });
 
-    await interaction.reply({
-      content: plainTextMessage,
-      embeds: [embed],
-    });
+      await interaction.editReply({
+        content: plainTextMessage,
+        embeds: [embed],
+      });
+
+    } catch (err) {
+      console.error('❌ Error in /top3te command:', err);
+      if (interaction.deferred) {
+        await interaction.editReply('❌ Something went wrong while sending the results.');
+      } else {
+        await interaction.reply('❌ Something went wrong while sending the results.');
+      }
+    }
   }
 };
