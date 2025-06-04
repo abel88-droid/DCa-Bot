@@ -1,4 +1,3 @@
-
 const {
   SlashCommandBuilder,
   ActionRowBuilder,
@@ -14,22 +13,22 @@ const path = require('path');
 const sportsCarMastery = [
   {
     title: 'REV SURGE',
-    description: ' *Increased acceleration*',
+    description: '📈 *Increased acceleration*',
     image: 'rev_surge.jpg',
   },
   {
     title: 'OVERDRIVE',
-    description: '*Increased top speed*',
+    description: '🚀 *Increased top speed*',
     image: 'overdrive.jpg',
   },
   {
     title: 'MEGA TANK',
-    description: '*Expands fuel tank size*',
+    description: '⛽ *Expands fuel tank size*',
     image: 'mega_tank.jpg',
   },
   {
     title: 'EXTRA PART',
-    description: '*Unlocks 4th mastery slot*',
+    description: '🛠️ *Unlocks 4th mastery slot*',
     image: 'extra_part.jpg',
   },
 ];
@@ -43,7 +42,7 @@ module.exports = {
     const carSelect = new ActionRowBuilder().addComponents(
       new StringSelectMenuBuilder()
         .setCustomId('select_car')
-        .setPlaceholder('Choose a car')
+        .setPlaceholder('Choose a vehicle')
         .addOptions([
           {
             label: 'Sports Car',
@@ -58,6 +57,11 @@ module.exports = {
       components: [carSelect],
       ephemeral: true,
     });
+  },
+
+  // This export helps access mastery data from interaction handler
+  masteries: {
+    sports_car: sportsCarMastery,
   },
 };
 
