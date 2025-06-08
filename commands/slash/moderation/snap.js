@@ -58,7 +58,7 @@ module.exports = {
         .setTitle('💥 **Snap Ban Executed**')
         .setDescription(`💀 *"${quote}"*\n\n💨 **${user.tag} has been banned from the universe!**`)
         .setColor('#800080')
-        .setThumbnail('https://media.tenor.com/1B8uvL_sUwEAAAAC/thanos-snap.gif')
+        .setImage('https://media.tenor.com/1B8uvL_sUwEAAAAC/thanos-snap.gif')
         .setFooter({ text: `Snapped by ${interaction.user.tag}` })
         .setTimestamp();
 
@@ -76,7 +76,7 @@ module.exports = {
         .setTitle('💨 **Snap Kick Executed**')
         .setDescription(`*"${quote}"*\n\n **${user.tag} has been kicked out of existence!**`)
         .setColor('#990000')
-        .setThumbnail('https://media.tenor.com/G9dQID3iMjUAAAAC/thanos.gif')
+        .setImage('https://media.tenor.com/G9dQID3iMjUAAAAC/thanos.gif')
         .setFooter({ text: `Snapped by ${interaction.user.tag}` })
         .setTimestamp();
 
