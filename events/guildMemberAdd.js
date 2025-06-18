@@ -4,7 +4,7 @@ module.exports = {
         const channel = member.guild.channels.cache.get("916042813425201152"); // Update with your channel ID
         if (!channel) return;
 
-        channel.send(`Hey @${member.user.username}! 👋
+        channel.send(`Hey @${member}! 👋
 Welcome to the **Discord Alliance server**!
 
 **Getting Started**:
