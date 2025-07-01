@@ -9,11 +9,11 @@ module.exports = {
 Hey ${member}! 👋  
 Welcome to the **Discord Alliance server**!
 
-> 1️⃣ **Head to #rules**  
+> 1️⃣ **Head to <#839605609027600415>**  
 > Read the server rules carefully, and once done, press ☑️ to get access to the main channels.  
 >  
 > 2️⃣ **Unlock More Channels**  
-> Go to #unlock-channels and select your desired option to access more channels of this server.  
+> Go to <#840310137390104627> and select your desired option to access more channels of this server.  
 >  
 > 3️⃣ **Name Policy**  
 > Please make sure your in-game name and your Discord display name matches in this server.
