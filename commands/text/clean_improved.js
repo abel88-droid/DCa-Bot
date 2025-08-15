@@ -1,6 +1,6 @@
 module.exports = {
   name: "clean",
-  description: "Deletes a specified number of messages. Usage: clean <amount> [@user] [-nopin]",
+  description: "Deletes a specified number of messages.",
   async execute(message, args) {
     if (!message.member.permissions.has("ManageMessages")) {
       return message.reply("You do not have permission to use this command.");
@@ -8,9 +8,6 @@ module.exports = {
 
     const amount = parseInt(args[0]);
     const noPin = args.includes("-nopin");
-    
-    // Check for user mention
-    const targetUser = message.mentions.users.first();
 
     if (isNaN(amount) || amount < 1 || amount > 100) {
       return message.reply("Please provide a number between 1 and 100.");
@@ -19,16 +16,11 @@ module.exports = {
     try {
       // Fetch more messages to account for filtering
       let messages = await message.channel.messages.fetch({ 
-        limit: Math.min(amount + 50, 100) 
+        limit: Math.min(amount + 50, 100) // Fetch extra to account for filtering
       });
 
       // Remove the command message
       messages = messages.filter(msg => msg.id !== message.id);
-
-      // Filter by target user if specified
-      if (targetUser) {
-        messages = messages.filter(msg => msg.author.id === targetUser.id);
-      }
 
       // Filter out pinned messages if -nopin flag is used
       if (noPin) {
@@ -39,15 +31,13 @@ module.exports = {
       const messagesToDelete = messages.first(amount);
 
       if (messagesToDelete.size === 0) {
-        const userText = targetUser ? ` from ${targetUser.username}` : '';
-        return message.reply(`No messages found to delete${userText}.`);
+        return message.reply("No messages found to delete.");
       }
 
       await message.channel.bulkDelete(messagesToDelete, true);
 
-      const userText = targetUser ? ` from **${targetUser.username}**` : '';
       const confirmMsg = await message.channel.send(
-        `✅ Deleted **${messagesToDelete.size}** message${messagesToDelete.size !== 1 ? 's' : ''}${userText}.`
+        `✅ Deleted **${messagesToDelete.size}** message${messagesToDelete.size !== 1 ? 's' : ''}.`
       );
       
       setTimeout(() => confirmMsg.delete().catch(() => {}), 3000);
