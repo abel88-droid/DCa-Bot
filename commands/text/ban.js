@@ -22,7 +22,7 @@ if (!message.member.permissions.has(PermissionsBitField.Flags.BanMembers)) {
     try {
       const user = await message.client.users.fetch(targetId);
       await user.send(
-        `You have been banned from **${message.guild.name}**.\nReason: **${reason}**\n\nIf you think this is a mistake, please contact |DC|SockS#0724, dc_devilx or gorillakurt.`
+        `You have been banned from **${message.guild.name}**.\nReason: **${reason}**\n\nIf you think this is a mistake, please contact b7m5, dc_void_ or gorillakurt`
       );
     } catch {
       message.channel.send("Couldn't send a DM to the user. Proceeding with the ban.");
