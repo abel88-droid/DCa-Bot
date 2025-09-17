@@ -15,6 +15,7 @@ exec("node deploy-commands.js", (error, stdout, stderr) => {
 const { Client, GatewayIntentBits, Collection } = require("discord.js");
 const fs = require("fs");
 const path = require("path");
+const { setupConnectionHandlers } = require("./utils/connectionManager");
 require("dotenv").config();
 require("./youtube/youtubeNotifier.js");
 
@@ -230,7 +231,31 @@ const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.get('/', (req, res) => res.send('Bot is alive!'));
+// Add timestamp to health check response
+app.get('/', (req, res) => {
+    const uptime = Math.floor(process.uptime());
+    const discordConnected = client.isReady();
+    res.json({
+        status: discordConnected ? 'alive' : 'disconnected',
+        uptime: `${uptime} seconds`,
+        discordStatus: discordConnected ? 'connected' : 'disconnected',
+        timestamp: new Date().toISOString()
+    });
+});
+
+// Keep-alive ping every 5 minutes
+setInterval(() => {
+    const isConnected = client.isReady();
+    console.log(`Keep-alive check: Discord ${isConnected ? 'connected' : 'disconnected'}`);
+    if (!isConnected) {
+        console.log('Attempting to reconnect to Discord...');
+        client.login(process.env.TOKEN).catch(console.error);
+    }
+}, 5 * 60 * 1000);
+
 app.listen(PORT, () => console.log(`Web server running on port ${PORT}`));
 
 client.login(process.env.TOKEN);
+
+// Setup connection handlers for automatic reconnection
+setupConnectionHandlers(client);
