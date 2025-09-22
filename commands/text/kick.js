@@ -31,11 +31,11 @@ module.exports = {
       .setDescription(`You have been **${action}** from **${message.guild.name}**.`)
       .addFields(
         { name: "Reason", value: reason },
-        { name: "Need Help?", value: "If you think this is a mistake, please contact:\n- b7m5\n- dc_void_\n- gorrilakurt" } 
+        { name: "Need Help?", value: "If you think this is a mistake, please contact:\n- gorrillakurt\n- dc\\_void\\_ \n- b7m5" } 
       )
       .setTimestamp();
 
-    // Try sending the DM first
+    // Sending DM
     member.send({ embeds: [dmEmbed] })
       .then(() => {
         // If DM is successful, kick the user
