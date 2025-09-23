@@ -31,7 +31,7 @@ module.exports = {
       .setDescription(`You have been **${action}** from **${message.guild.name}**.`)
       .addFields(
         { name: "Reason", value: reason },
-        { name: "Need Help?", value: "If you think this is a mistake, please contact:\n- gorrillakurt\n- dc\\_void\\_ \n- b7m5" } 
+        { name: "Need Help?", value: "If you think this is a mistake, please contact:\n- gorillakurt\n- dc\\_void\\_ \n- b7m5" } 
       )
       .setTimestamp();
 
