@@ -28,11 +28,13 @@ module.exports = {
     const failedKicks = [];
 
     
+    // Fetch all members first
+    await message.guild.members.fetch();
+    
     const membersWithRole = message.guild.members.cache.filter(member => 
       member.roles.cache.has(role.id) && 
       member.kickable &&
-      member.id !== message.guild.ownerId 
-      
+      member.id !== message.guild.ownerId
     );
 
     if (membersWithRole.size === 0) {
