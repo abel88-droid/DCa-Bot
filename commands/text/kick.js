@@ -5,7 +5,6 @@ module.exports = {
   description: "Kicks a user from the server",
   prefix: "-",
   async execute(message, args) {
-    // Check if message starts with the correct prefix
     if (!message.content.startsWith(this.prefix)) return;
 
     if (!message.member.permissions.has(PermissionsBitField.Flags.KickMembers)) {
@@ -14,7 +13,7 @@ module.exports = {
 
     let member = message.mentions.members.first();
     if (!member) {
-      // Try to get member by ID
+      
       const userId = args[0];
       try {
         member = await message.guild.members.fetch(userId);
@@ -48,7 +47,7 @@ module.exports = {
     // Sending DM
     member.send({ embeds: [dmEmbed] })
       .then(() => {
-        // If DM is successful, kick the user
+        
         member.kick(reason)
           .then(() => {
             message.reply(`Successfully kicked **${member.user.tag}**. Reason: ${reason}`);
@@ -59,7 +58,7 @@ module.exports = {
           });
       })
       .catch(() => {
-        // If DM fails, notify in the server and still kick the user
+        // If DM fails lol
         message.reply(`⚠️ Could not send a DM to **${member.user.tag}**, but they will still be kicked.`);
 
         member.kick(reason)
