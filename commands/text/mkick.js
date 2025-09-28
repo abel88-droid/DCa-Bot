@@ -2,24 +2,24 @@ const { PermissionsBitField, EmbedBuilder } = require("discord.js");
 
 module.exports = {
   name: "mkick",
-  description: "Kicks all members with a specific role",
+  description: "Kicks all members with a specific role. Usage: -mkick @role [reason]",
   prefix: "-",
   async execute(message, args) {
     if (!message.content.startsWith(this.prefix)) return;
 
-    // Check for Administrator permission
+    // Administrator permission
     if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
       return message.reply("❌ This command can only be used by administrators.");
     }
 
-    // Check if a role was mentioned
+   
     const role = message.mentions.roles.first();
     if (!role) {
       return message.reply("Please mention a valid role to kick its members.");
     }
 
     if (args.length < 2) {
-      return message.reply("Please provide a reason for kicking the members.");
+      return message.reply("❌ Error: A reason is required! Usage: -mkick @role [reason]");
     }
 
     const reason = args.slice(1).join(" ");
@@ -27,21 +27,24 @@ module.exports = {
     const kickedMembers = [];
     const failedKicks = [];
 
-    // Get members with the role
+    
     const membersWithRole = message.guild.members.cache.filter(member => 
       member.roles.cache.has(role.id) && 
       member.kickable &&
-      member.id !== message.guild.ownerId // Don't kick the server owner
+      member.id !== message.guild.ownerId 
+      
     );
 
     if (membersWithRole.size === 0) {
       return message.reply("No kickable members found with that role.");
     }
 
-    // Confirmation message
+    
+    
     const confirmMessage = await message.reply(`Are you sure you want to kick ${membersWithRole.size} members with the ${role.name} role? Reply with \`yes\` to confirm or \`no\` to cancel.`);
 
-    // Wait for confirmation
+    
+    
     try {
       const collected = await message.channel.awaitMessages({
         filter: m => m.author.id === message.author.id && ['yes', 'no'].includes(m.content.toLowerCase()),
@@ -75,7 +78,8 @@ module.exports = {
 
     for (const [_, member] of membersWithRole) {
       try {
-        // Try to send DM first
+        
+        
         try {
           await member.send({ embeds: [dmEmbed] });
         } catch (dmError) {
