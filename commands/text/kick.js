@@ -3,14 +3,24 @@ const { PermissionsBitField, EmbedBuilder } = require("discord.js");
 module.exports = {
   name: "kick",
   description: "Kicks a user from the server",
-  execute(message, args) {
+  prefix: "-",
+  async execute(message, args) {
+    // Check if message starts with the correct prefix
+    if (!message.content.startsWith(this.prefix)) return;
+
     if (!message.member.permissions.has(PermissionsBitField.Flags.KickMembers)) {
       return message.reply("You do not have permission to use this command.");
     }
 
-    const member = message.mentions.members.first();
+    let member = message.mentions.members.first();
     if (!member) {
-      return message.reply("Please mention a valid member to kick.");
+      // Try to get member by ID
+      const userId = args[0];
+      try {
+        member = await message.guild.members.fetch(userId);
+      } catch (error) {
+        return message.reply("Please mention a valid member or provide a valid user ID to kick.");
+      }
     }
 
     if (!member.kickable) {
