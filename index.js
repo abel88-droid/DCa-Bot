@@ -164,7 +164,6 @@ client.once("ready", async () => {
 
     try {
         const reactionRolesUnlock1 = require("./events/reactionRoles_unlockchannel1.js");
-        const reactionRolesUnlock2 = require("./events/reactionRoles_unlockchannel2.js");
         const reactionRolesUnlock3 = require("./events/reactionRoles_unlockchannel3.js");
         const reactionRolesPECall = require("./events/reactionRoles_PEcall.js");
         const reactionRolesGCcall = require("./events/reactionRoles_GCcall.js");
@@ -180,7 +179,6 @@ client.once("ready", async () => {
         };
 
         await reactionRolesUnlock1.execute(client);
-        await reactionRolesUnlock2.execute(client);
 
         console.log("✅ Reaction role scripts executed.");
     } catch (error) {
