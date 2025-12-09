@@ -1,3 +1,4 @@
+// index.js (cleaned — minimal changes)
 const { exec } = require("child_process");
 
 exec("node deploy-commands.js", (error, stdout, stderr) => {
@@ -15,9 +16,17 @@ exec("node deploy-commands.js", (error, stdout, stderr) => {
 const { Client, GatewayIntentBits, Collection } = require("discord.js");
 const fs = require("fs");
 const path = require("path");
-const { setupConnectionHandlers } = require("./utils/connectionManager");
+// NOTE: removed custom connection manager import to avoid duplicate login/reconnect logic
+// const { setupConnectionHandlers } = require("./utils/connectionManager");
 require("dotenv").config();
 require("./youtube/youtubeNotifier.js");
+
+process.on("unhandledRejection", (reason, promise) => {
+    console.error("Unhandled Rejection:", reason);
+});
+process.on("uncaughtException", (err) => {
+    console.error("Uncaught Exception:", err);
+});
 
 const client = new Client({
     intents: [
@@ -241,19 +250,19 @@ app.get('/', (req, res) => {
     });
 });
 
-// Keep-alive ping every 5 minutes
+// Keep-alive logging every 5 minutes (no longer attempts to call client.login)
 setInterval(() => {
     const isConnected = client.isReady();
     console.log(`Keep-alive check: Discord ${isConnected ? 'connected' : 'disconnected'}`);
     if (!isConnected) {
-        console.log('Attempting to reconnect to Discord...');
-        client.login(process.env.TOKEN).catch(console.error);
+        console.log('Discord not ready — check logs for errors (will not force login to avoid duplicate sessions).');
     }
 }, 5 * 60 * 1000);
 
 app.listen(PORT, () => console.log(`Web server running on port ${PORT}`));
 
+// Single login call (only one)
 client.login(process.env.TOKEN);
 
-// Setup connection handlers for automatic reconnection
-setupConnectionHandlers(client);
+// NOTE: removed setupConnectionHandlers(client) to avoid duplicate reconnect logic.
+// Discord.js handles reconnection internally.
