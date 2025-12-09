@@ -240,4 +240,4 @@ setInterval(() => {
 app.listen(PORT, () => console.log(`🌐 Web server running on ${PORT}`));
 
 // Single login call
-client.login(process.env.TOKEN);
+client.login(process.env.DISCORD_TOKEN);
