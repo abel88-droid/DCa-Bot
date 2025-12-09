@@ -35,6 +35,9 @@ const client = new Client({
     ]
 });
 
+// custom ready flag for health check
+client.isBotReady = false;
+
 client.commands = new Collection();
 client.slashCommands = new Collection();
 
@@ -94,7 +97,6 @@ if (fs.existsSync(slashPath)) {
 const eventsPath = path.join(__dirname, "events");
 if (fs.existsSync(eventsPath)) {
     const eventFiles = fs.readdirSync(eventsPath).filter(f => f.endsWith(".js"));
-
     for (const file of eventFiles) {
         try {
             const event = require(`./events/${file}`);
@@ -157,6 +159,9 @@ client.on("interactionCreate", async interaction => {
 
 // READY EVENT
 client.once("ready", async () => {
+    // mark bot as ready for health check
+    client.isBotReady = true;
+
     console.log(`\n========================`);
     console.log(`✅ Logged in as ${client.user.tag}`);
     console.log(`========================\n`);
@@ -210,7 +215,11 @@ const handleReactionRole = async (reaction, user, add) => {
 
     try {
         const member = await reaction.message.guild.members.fetch(user.id);
-        add ? await member.roles.add(roleId) : await member.roles.remove(roleId);
+        if (add) {
+            await member.roles.add(roleId);
+        } else {
+            await member.roles.remove(roleId);
+        }
     } catch (err) {
         console.error("❌ Role modify error:", err);
     }
@@ -226,15 +235,16 @@ const PORT = process.env.PORT || 3000;
 
 app.get("/", (req, res) => {
     res.json({
-        status: client.isReady() ? "alive" : "disconnected",
+        status: client.isBotReady ? "alive" : "disconnected",
         uptime: Math.floor(process.uptime()),
+        discordStatus: client.isBotReady ? "connected" : "disconnected",
         timestamp: new Date().toISOString()
     });
 });
 
 // Keep-alive logs every 5 min
 setInterval(() => {
-    console.log(`Keep-alive: Discord ${client.isReady() ? "connected" : "DISCONNECTED"}`);
+    console.log(`Keep-alive: Discord ${client.isBotReady ? "connected" : "DISCONNECTED"}`);
 }, 5 * 60 * 1000);
 
 app.listen(PORT, () => console.log(`🌐 Web server running on ${PORT}`));
