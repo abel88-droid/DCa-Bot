@@ -1,4 +1,4 @@
-// index.js (cleaned — minimal changes)
+// index.js (final fixed)
 const { exec } = require("child_process");
 
 exec("node deploy-commands.js", (error, stdout, stderr) => {
@@ -16,18 +16,14 @@ exec("node deploy-commands.js", (error, stdout, stderr) => {
 const { Client, GatewayIntentBits, Collection } = require("discord.js");
 const fs = require("fs");
 const path = require("path");
-// NOTE: removed custom connection manager import to avoid duplicate login/reconnect logic
-// const { setupConnectionHandlers } = require("./utils/connectionManager");
 require("dotenv").config();
-require("./youtube/youtubeNotifier.js");
+require("./youtube/youtubeNotifier.js"); // your YT notifier
 
-process.on("unhandledRejection", (reason, promise) => {
-    console.error("Unhandled Rejection:", reason);
-});
-process.on("uncaughtException", (err) => {
-    console.error("Uncaught Exception:", err);
-});
+// Error handlers
+process.on("unhandledRejection", reason => console.error("Unhandled Rejection:", reason));
+process.on("uncaughtException", err => console.error("Uncaught Exception:", err));
 
+// Client Setup
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -42,70 +38,63 @@ const client = new Client({
 client.commands = new Collection();
 client.slashCommands = new Collection();
 
-// Load traditional (-) commands from "commands/text/"
+// Load text (-) commands
 const textCommandsPath = path.join(__dirname, "commands", "text");
 if (fs.existsSync(textCommandsPath)) {
-    const commandFiles = fs.readdirSync(textCommandsPath).filter(file => file.endsWith(".js"));
-    for (const file of commandFiles) {
+    const textFiles = fs.readdirSync(textCommandsPath).filter(f => f.endsWith(".js"));
+    for (const file of textFiles) {
         try {
             const command = require(`./commands/text/${file}`);
             if (command.name) {
                 client.commands.set(command.name, command);
                 console.log(`✅ Loaded text command: ${command.name}`);
             } else {
-                console.warn(`⚠️ Command file ${file} is missing a name property.`);
+                console.warn(`⚠️ Missing command name in ${file}`);
             }
-        } catch (error) {
-            console.error(`❌ Error loading text command file ${file}:`, error);
+        } catch (err) {
+            console.error(`❌ Error loading text command ${file}:`, err);
         }
     }
-} else {
-    console.warn("⚠️ 'commands/text' folder not found. No text commands loaded.");
 }
 
-// Load slash (/) commands from "commands/slash/" and subfolders
-const slashCommandsPath = path.join(__dirname, "commands", "slash");
-if (fs.existsSync(slashCommandsPath)) {
-    function getAllSlashCommandFiles(dir) {
-        let results = [];
-        const list = fs.readdirSync(dir);
+// Load slash (/) commands
+const slashPath = path.join(__dirname, "commands", "slash");
 
-        for (const file of list) {
-            const filePath = path.join(dir, file);
-            const stat = fs.statSync(filePath);
-
-            if (stat && stat.isDirectory()) {
-                results = results.concat(getAllSlashCommandFiles(filePath));
-            } else if (file.endsWith(".js")) {
-                results.push(filePath);
-            }
+function getAllSlashCommands(dir) {
+    let results = [];
+    for (const file of fs.readdirSync(dir)) {
+        const full = path.join(dir, file);
+        if (fs.statSync(full).isDirectory()) {
+            results = results.concat(getAllSlashCommands(full));
+        } else if (file.endsWith(".js")) {
+            results.push(full);
         }
-
-        return results;
     }
+    return results;
+}
 
-    const slashCommandFiles = getAllSlashCommandFiles(slashCommandsPath);
-    for (const filePath of slashCommandFiles) {
+if (fs.existsSync(slashPath)) {
+    const slashFiles = getAllSlashCommands(slashPath);
+    for (const file of slashFiles) {
         try {
-            const command = require(filePath);
+            const command = require(file);
             if (command.data && command.data.name) {
                 client.slashCommands.set(command.data.name, command);
-                console.log(`✅ Loaded slash command: ${command.data.name} from ${filePath}`);
+                console.log(`✅ Loaded slash command: ${command.data.name}`);
             } else {
-                console.warn(`⚠️ Slash command file ${filePath} is missing a name property.`);
+                console.warn(`⚠️ Missing slash command name in ${file}`);
             }
-        } catch (error) {
-            console.error(`❌ Error loading slash command file ${filePath}:`, error);
+        } catch (err) {
+            console.error(`❌ Error loading slash command ${file}:`, err);
         }
     }
-} else {
-    console.warn("⚠️ 'commands/slash' folder not found. No slash commands loaded.");
 }
 
-// Load event handlers (welcome and leave messages)
+// Load event files
 const eventsPath = path.join(__dirname, "events");
 if (fs.existsSync(eventsPath)) {
-    const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith(".js"));
+    const eventFiles = fs.readdirSync(eventsPath).filter(f => f.endsWith(".js"));
+
     for (const file of eventFiles) {
         try {
             const event = require(`./events/${file}`);
@@ -117,59 +106,62 @@ if (fs.existsSync(eventsPath)) {
                 }
                 console.log(`✅ Loaded event: ${event.name}`);
             } else {
-                console.warn(`⚠️ Event file ${file} is missing a name property.`);
+                console.warn(`⚠️ Missing event name in ${file}`);
             }
-        } catch (error) {
-            console.error(`❌ Error loading event file ${file}:`, error);
+        } catch (err) {
+            console.error(`❌ Error loading event ${file}:`, err);
         }
     }
-} else {
-    console.warn("⚠️ 'events' folder not found. No event handlers loaded.");
 }
 
-// Traditional (-) command handler
+// "-" text commands
 client.on("messageCreate", async message => {
     if (!message.content.startsWith("-") || message.author.bot) return;
 
     const args = message.content.slice(1).trim().split(/ +/);
     const commandName = args.shift().toLowerCase();
     const command = client.commands.get(commandName);
-
     if (!command) return;
 
     try {
         await command.execute(message, args);
-    } catch (error) {
-        console.error(`❌ Error executing command ${commandName}:`, error);
-        message.reply("❌ There was an error executing this command.");
+    } catch (err) {
+        console.error(`❌ Error executing command ${commandName}:`, err);
+        message.reply("❌ Error executing this command.");
     }
 });
 
-// Slash (/) command handler
+// Slash commands & buttons
 client.on("interactionCreate", async interaction => {
     if (interaction.isCommand()) {
-        const command = client.slashCommands.get(interaction.commandName);
-        if (!command) return;
+        const cmd = client.slashCommands.get(interaction.commandName);
+        if (!cmd) return;
 
         try {
-            await command.execute(interaction);
-        } catch (error) {
-            console.error(`❌ Error executing slash command ${interaction.commandName}:`, error);
-            await interaction.reply({ content: "❌ There was an error executing this command.", ephemeral: true });
+            await cmd.execute(interaction);
+        } catch (err) {
+            console.error(`❌ Slash error ${interaction.commandName}:`, err);
+            interaction.reply({ content: "❌ Error executing this command.", ephemeral: true });
         }
-    } else if (interaction.isButton()) {
+    }
+
+    if (interaction.isButton()) {
         try {
             const buttonHandler = require("./commands/events/buttonHandler.js");
             await buttonHandler.execute(interaction);
-        } catch (error) {
-            console.error("❌ Error handling button interaction:", error);
+        } catch (err) {
+            console.error("❌ Button handler error:", err);
         }
     }
 });
 
+// READY EVENT
 client.once("ready", async () => {
-    console.log(`✅ Logged in as ${client.user.tag}!`);
-    console.log("ℹ️ Running reaction role scripts...");
+    console.log(`\n========================`);
+    console.log(`✅ Logged in as ${client.user.tag}`);
+    console.log(`========================\n`);
+
+    console.log("ℹ️ Starting reaction role scripts...");
 
     try {
         const reactionRolesUnlock1 = require("./events/reactionRoles_unlockchannel1.js");
@@ -177,28 +169,30 @@ client.once("ready", async () => {
         const reactionRolesPECall = require("./events/reactionRoles_PEcall.js");
         const reactionRolesGCcall = require("./events/reactionRoles_GCcall.js");
         const reactionRolesTournament = require("./events/reactionRolesTournament.js");
-        const reactionRolesRules = require("./events/reactionRoles_Rules.js"); 
+        const reactionRolesRules = require("./events/reactionRoles_Rules.js");
 
         client.reactionRoleMessages = {
             unlockMsgId: await reactionRolesUnlock3.execute(client),
             peCallMsgId: await reactionRolesPECall.execute(client),
             gcCallMsgId: await reactionRolesGCcall.execute(client),
             tournamentMsgId: await reactionRolesTournament.execute(client),
-            rulesMsgId: await reactionRolesRules.execute(client), 
+            rulesMsgId: await reactionRolesRules.execute(client)
         };
 
         await reactionRolesUnlock1.execute(client);
 
-        console.log("✅ Reaction role scripts executed.");
-    } catch (error) {
-        console.error("❌ Error running reaction role scripts:", error);
+        console.log("✅ Reaction role scripts done.");
+    } catch (err) {
+        console.error("❌ Reaction role script error:", err);
     }
 });
 
+// Universal reaction-role handler
 const handleReactionRole = async (reaction, user, add) => {
     if (user.bot || !client.reactionRoleMessages) return;
 
-    let roleId;
+    let roleId = null;
+
     if (reaction.message.id === client.reactionRoleMessages.unlockMsgId) {
         roleId = "842089922768797726";
     } else if (reaction.message.id === client.reactionRoleMessages.peCallMsgId) {
@@ -206,63 +200,44 @@ const handleReactionRole = async (reaction, user, add) => {
     } else if (reaction.message.id === client.reactionRoleMessages.gcCallMsgId) {
         roleId = "1026142060937498685";
     } else if (reaction.message.id === client.reactionRoleMessages.tournamentMsgId) {
-        if (reaction.emoji.name === "🏁") {
-            roleId = "963429908619616286";
-        } else if (reaction.emoji.name === "🏞️") {
-            roleId = "1103695688363159572";
-        }
-    } else if (reaction.message.id === client.reactionRoleMessages.rulesMsgId) { 
-        roleId = "1345651591583367168"; 
-    } else {
-        return;
+        if (reaction.emoji.name === "🏁") roleId = "963429908619616286";
+        if (reaction.emoji.name === "🏞️") roleId = "1103695688363159572";
+    } else if (reaction.message.id === client.reactionRoleMessages.rulesMsgId) {
+        roleId = "1345651591583367168";
     }
+
+    if (!roleId) return;
 
     try {
         const member = await reaction.message.guild.members.fetch(user.id);
-        if (add) {
-            await member.roles.add(roleId);
-            console.log(`✅ Added role ${roleId} to ${user.tag}`);
-        } else {
-            await member.roles.remove(roleId);
-            console.log(`❌ Removed role ${roleId} from ${user.tag}`);
-        }
-    } catch (error) {
-        console.error("❌ Error modifying role:", error);
+        add ? await member.roles.add(roleId) : await member.roles.remove(roleId);
+    } catch (err) {
+        console.error("❌ Role modify error:", err);
     }
 };
 
-client.on("messageReactionAdd", (reaction, user) => handleReactionRole(reaction, user, true));
-client.on("messageReactionRemove", (reaction, user) => handleReactionRole(reaction, user, false));
+client.on("messageReactionAdd", (r, u) => handleReactionRole(r, u, true));
+client.on("messageReactionRemove", (r, u) => handleReactionRole(r, u, false));
 
-const express = require('express');
+// Express keep-alive server
+const express = require("express");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Add timestamp to health check response
-app.get('/', (req, res) => {
-    const uptime = Math.floor(process.uptime());
-    const discordConnected = client.isReady();
+app.get("/", (req, res) => {
     res.json({
-        status: discordConnected ? 'alive' : 'disconnected',
-        uptime: `${uptime} seconds`,
-        discordStatus: discordConnected ? 'connected' : 'disconnected',
+        status: client.isReady() ? "alive" : "disconnected",
+        uptime: Math.floor(process.uptime()),
         timestamp: new Date().toISOString()
     });
 });
 
-// Keep-alive logging every 5 minutes (no longer attempts to call client.login)
+// Keep-alive logs every 5 min
 setInterval(() => {
-    const isConnected = client.isReady();
-    console.log(`Keep-alive check: Discord ${isConnected ? 'connected' : 'disconnected'}`);
-    if (!isConnected) {
-        console.log('Discord not ready — check logs for errors (will not force login to avoid duplicate sessions).');
-    }
+    console.log(`Keep-alive: Discord ${client.isReady() ? "connected" : "DISCONNECTED"}`);
 }, 5 * 60 * 1000);
 
-app.listen(PORT, () => console.log(`Web server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`🌐 Web server running on ${PORT}`));
 
-// Single login call (only one)
+// Single login call
 client.login(process.env.TOKEN);
-
-// NOTE: removed setupConnectionHandlers(client) to avoid duplicate reconnect logic.
-// Discord.js handles reconnection internally.
