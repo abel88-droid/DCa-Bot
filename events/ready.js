@@ -11,9 +11,9 @@ module.exports = {
             client.user.setPresence({
                 activities: [
                     {
-                        name: 'Eating Dragon',
+                        name: 'Running smoother than Ishan’s Wi-Fi',
                         type: ActivityType.Custom,
-                        state: 'Eating Dragon',
+                        state: 'Running smoother than Ishan’s Wi-Fi',
                     },
                 ],
                 status: 'online',
