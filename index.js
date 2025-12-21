@@ -1,18 +1,3 @@
-// index.js (final fixed)
-const { exec } = require("child_process");
-
-exec("node deploy-commands.js", (error, stdout, stderr) => {
-    if (error) {
-        console.error(`❌ Error registering commands: ${error.message}`);
-        return;
-    }
-    if (stderr) {
-        console.error(`❌ stderr: ${stderr}`);
-        return;
-    }
-    console.log(`✅ Slash commands registered: ${stdout}`);
-});
-
 const { Client, GatewayIntentBits, Collection,Partials } = require("discord.js");
 const fs = require("fs");
 const path = require("path");
