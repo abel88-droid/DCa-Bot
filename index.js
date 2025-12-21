@@ -13,7 +13,7 @@ exec("node deploy-commands.js", (error, stdout, stderr) => {
     console.log(`✅ Slash commands registered: ${stdout}`);
 });
 
-const { Client, GatewayIntentBits, Collection } = require("discord.js");
+const { Client, GatewayIntentBits, Collection,Partials } = require("discord.js");
 const fs = require("fs");
 const path = require("path");
 require("dotenv").config();
@@ -32,7 +32,12 @@ const client = new Client({
         GatewayIntentBits.GuildMessageReactions,
         GatewayIntentBits.GuildBans,
         GatewayIntentBits.MessageContent
-    ]
+    ],
+    partials: [
+    Partials.Message,
+    Partials.Channel,
+    Partials.Reaction
+  ]
 });
 
 // custom ready flag for health check
