@@ -26,7 +26,10 @@ module.exports = {
     const kickedMembers = [];
     const failedKicks = [];
 
-    // Get members with role (without forcing full fetch)
+    // FETCH ALL MEMBERS FIRST (fix)
+    await message.guild.members.fetch();
+
+    // Get members with role
     const membersWithRole = message.guild.members.cache.filter(member =>
       member.roles.cache.has(role.id) &&
       member.kickable &&
@@ -64,7 +67,7 @@ module.exports = {
       .setDescription(`You have been **${action}** from **${message.guild.name}**.`)
       .addFields(
         { name: "Reason", value: reason },
-        { name: "Need Help?", value: "If you think this is a mistake, please contact:\n- gorillakurt\n- dc\\_void\\_\n- b7m5" }
+        { name: "Need Help?", value: "If you think this is a mistake, please contact:\n- gorillakurt\n- dc_void_\n- b7m5" }
       )
       .setTimestamp();
 
@@ -124,3 +127,4 @@ module.exports = {
     await statusMessage.delete().catch(() => {});
   },
 };
+
