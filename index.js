@@ -2,11 +2,21 @@ const { Client, GatewayIntentBits, Collection,Partials } = require("discord.js")
 const fs = require("fs");
 const path = require("path");
 require("dotenv").config();
-require("./youtube/youtubeNotifier.js"); // your YT notifier
 
 // Error handlers
 process.on("unhandledRejection", reason => console.error("Unhandled Rejection:", reason));
 process.on("uncaughtException", err => console.error("Uncaught Exception:", err));
+
+// Initialize YouTube Notifier with timeout protection
+try {
+    const youtubeNotifierPromise = Promise.resolve(require("./youtube/youtubeNotifier.js"));
+    Promise.race([
+        youtubeNotifierPromise,
+        new Promise((_, reject) => setTimeout(() => reject(new Error("YT Notifier timeout after 10s")), 10000))
+    ]).catch(err => console.error("❌ YouTube Notifier error:", err.message));
+} catch (err) {
+    console.error("❌ Failed to load YouTube Notifier:", err);
+}
 
 // Client Setup
 const client = new Client({
@@ -166,20 +176,55 @@ client.once("ready", async () => {
         const reactionRolesTournament = require("./events/reactionRolesTournament.js");
         const reactionRolesRules = require("./events/reactionRoles_Rules.js");
 
+        // Setup with timeout protection
+        const rolePromises = [
+            Promise.resolve(reactionRolesUnlock3.execute(client)),
+            Promise.resolve(reactionRolesPECall.execute(client)),
+            Promise.resolve(reactionRolesGCcall.execute(client)),
+            Promise.resolve(reactionRolesTournament.execute(client)),
+            Promise.resolve(reactionRolesRules.execute(client))
+        ];
+
+        const results = await Promise.race([
+            Promise.all(rolePromises),
+            new Promise((_, reject) => 
+                setTimeout(() => reject(new Error("Reaction role setup timeout after 20s")), 20000)
+            )
+        ]);
+
         client.reactionRoleMessages = {
-            unlockMsgId: await reactionRolesUnlock3.execute(client),
-            peCallMsgId: await reactionRolesPECall.execute(client),
-            gcCallMsgId: await reactionRolesGCcall.execute(client),
-            tournamentMsgId: await reactionRolesTournament.execute(client),
-            rulesMsgId: await reactionRolesRules.execute(client)
+            unlockMsgId: results[0],
+            peCallMsgId: results[1],
+            gcCallMsgId: results[2],
+            tournamentMsgId: results[3],
+            rulesMsgId: results[4]
         };
 
         await reactionRolesUnlock1.execute(client);
 
         console.log("✅ Reaction role scripts done.");
     } catch (err) {
-        console.error("❌ Reaction role script error:", err);
+        console.error("❌ Reaction role script error:", err.message);
+        // Initialize with empty object to prevent crashes
+        client.reactionRoleMessages = {
+            unlockMsgId: null,
+            peCallMsgId: null,
+            gcCallMsgId: null,
+            tournamentMsgId: null,
+            rulesMsgId: null
+        };
     }
+});
+
+// Handle unexpected disconnections
+client.on("disconnect", () => {
+    console.log("⚠️ Bot disconnected from Discord");
+    client.isBotReady = false;
+});
+
+// Handle client errors
+client.on("error", err => {
+    console.error("❌ Discord client error:", err);
 });
 
 // Universal reaction-role handler
@@ -230,6 +275,25 @@ app.get("/", (req, res) => {
         discordStatus: client.isBotReady ? "connected" : "disconnected",
         timestamp: new Date().toISOString()
     });
+});
+
+// Health check endpoint for Render
+app.get("/health", (req, res) => {
+    if (client.isReady()) {
+        res.status(200).json({
+            status: "healthy",
+            uptime: Math.floor(process.uptime()),
+            discordStatus: "connected",
+            timestamp: new Date().toISOString()
+        });
+    } else {
+        res.status(503).json({
+            status: "unhealthy",
+            uptime: Math.floor(process.uptime()),
+            discordStatus: "disconnected",
+            timestamp: new Date().toISOString()
+        });
+    }
 });
 
 // Keep-alive logs every 5 min
