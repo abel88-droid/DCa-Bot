@@ -88,4 +88,4 @@ client.once("ready", () => {
   setInterval(checkYouTube, 5 * 60 * 1000); // Check every 5 minutes
 });
 
-client.login(process.env.TOKEN);
+client.login(process.env.DISCORD_TOKEN);
