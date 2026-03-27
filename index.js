@@ -314,31 +314,25 @@ setInterval(() => {
 app.listen(PORT, () => console.log(`🌐 Web server running on ${PORT}`));
 
 // Single login call
-console.log("📡 Discord client setup complete, attempting connection...");
-console.log(`Token exists: ${process.env.DISCORD_TOKEN ? "YES" : "NO"}`);
-console.log(`Token length: ${process.env.DISCORD_TOKEN ? process.env.DISCORD_TOKEN.length : "N/A"}`);
+console.log("📡 Attempting Discord connection...");
+console.log(`Token: ${process.env.DISCORD_TOKEN ? process.env.DISCORD_TOKEN.substring(0, 10) + "..." : "MISSING"}`);
 
-client.once("ready", () => {
-    console.log("✅ READY event fired!");
+client.on("debug", (msg) => {
+    console.log("[DEBUG]", msg);
 });
 
-client.on("error", (err) => {
-    console.error("❌ Client error:", err.message);
+client.on("ready", () => {
+    console.log("✅ Bot is READY!");
+    client.isBotReady = true;
 });
 
-client.on("shardError", (err) => {
-    console.error("❌ Shard error:", err.message);
-});
+client.login(process.env.DISCORD_TOKEN);
 
-client.login(process.env.DISCORD_TOKEN).catch((err) => {
-    console.error("❌ Login failed:", err.message);
-    process.exit(1);
-});
-
-// Add timeout - if no ready event after 30s, something's wrong
 setTimeout(() => {
     if (!client.isReady()) {
-        console.error("❌ Bot failed to connect within 30 seconds");
-        process.exit(1);
+        console.error("❌ FAILED: Bot did not connect. Possible causes:");
+        console.error("  - Invalid token");
+        console.error("  - Network/firewall blocking Discord");
+        console.error("  - Discord API issues");
     }
-}, 30000);
+}, 35000);
