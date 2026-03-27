@@ -8,15 +8,15 @@ process.on("unhandledRejection", reason => console.error("Unhandled Rejection:",
 process.on("uncaughtException", err => console.error("Uncaught Exception:", err));
 
 // Initialize YouTube Notifier with timeout protection
-try {
-    const youtubeNotifierPromise = Promise.resolve(require("./youtube/youtubeNotifier.js"));
-    Promise.race([
-        youtubeNotifierPromise,
-        new Promise((_, reject) => setTimeout(() => reject(new Error("YT Notifier timeout after 10s")), 10000))
-    ]).catch(err => console.error("❌ YouTube Notifier error:", err.message));
-} catch (err) {
-    console.error("❌ Failed to load YouTube Notifier:", err);
-}
+// try {
+    // const youtubeNotifierPromise = Promise.resolve(require("./youtube/youtubeNotifier.js"));
+    // Promise.race([
+        // youtubeNotifierPromise,
+        // new Promise((_, reject) => setTimeout(() => reject(new Error("YT Notifier timeout after 10s")), 10000))
+    // ]).catch(err => console.error("❌ YouTube Notifier error:", err.message));
+// } catch (err) {
+    // console.error("❌ Failed to load YouTube Notifier:", err);
+// }
 
 // Client Setup
 const client = new Client({
