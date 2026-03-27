@@ -304,7 +304,24 @@ setInterval(() => {
 app.listen(PORT, () => console.log(`🌐 Web server running on ${PORT}`));
 
 // Single login call
-console.log(`🔐 Attempting to login with token: ${process.env.DISCORD_TOKEN ? "FOUND" : "MISSING"}`);
-client.login(process.env.DISCORD_TOKEN).catch(err => {
-    console.error("❌ CRITICAL: Failed to login to Discord:", err);
+console.log("📡 Discord client setup complete, attempting connection...");
+console.log(`Token exists: ${process.env.DISCORD_TOKEN ? "YES" : "NO"}`);
+console.log(`Token length: ${process.env.DISCORD_TOKEN ? process.env.DISCORD_TOKEN.length : "N/A"}`);
+
+client.once("ready", () => {
+    console.log("✅ READY event fired!");
+});
+
+client.on("error", (err) => {
+    console.error("❌ Client error:", err.message);
+});
+
+client.on("shardError", (err) => {
+    console.error("❌ Shard error:", err.message);
+});
+
+client.login(process.env.DISCORD_TOKEN).then(() => {
+    console.log("✅ Login promise resolved");
+}).catch((err) => {
+    console.error("❌ Login failed:", err.message);
 });
