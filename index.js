@@ -320,8 +320,15 @@ client.on("shardError", (err) => {
     console.error("❌ Shard error:", err.message);
 });
 
-client.login(process.env.DISCORD_TOKEN).then(() => {
-    console.log("✅ Login promise resolved");
-}).catch((err) => {
+client.login(process.env.DISCORD_TOKEN).catch((err) => {
     console.error("❌ Login failed:", err.message);
+    process.exit(1);
 });
+
+// Add timeout - if no ready event after 30s, something's wrong
+setTimeout(() => {
+    if (!client.isReady()) {
+        console.error("❌ Bot failed to connect within 30 seconds");
+        process.exit(1);
+    }
+}, 30000);
