@@ -304,4 +304,7 @@ setInterval(() => {
 app.listen(PORT, () => console.log(`🌐 Web server running on ${PORT}`));
 
 // Single login call
-client.login(process.env.DISCORD_TOKEN);
+console.log(`🔐 Attempting to login with token: ${process.env.DISCORD_TOKEN ? "FOUND" : "MISSING"}`);
+client.login(process.env.DISCORD_TOKEN).catch(err => {
+    console.error("❌ CRITICAL: Failed to login to Discord:", err);
+});
