@@ -34,6 +34,16 @@ const client = new Client({
     Partials.Reaction
   ]
 });
+// testing
+client.on("warn", (info) => {
+    console.warn("⚠️ Client warning:", info);
+});
+
+client.on("debug", (info) => {
+    if (info.includes("error") || info.includes("connection")) {
+        console.log("🔍 Debug:", info);
+    }
+});
 
 // custom ready flag for health check
 client.isBotReady = false;
