@@ -324,16 +324,6 @@ https.get("https://discord.com/api/v10/gateway", (res) => {
 // Single login call
 console.log("📡 Attempting Discord connection...");
 console.log(`Token: ${process.env.DISCORD_TOKEN ? process.env.DISCORD_TOKEN.substring(0, 10) + "..." : "MISSING"}`);
-
-client.on("debug", (msg) => {
-    console.log("[DEBUG]", msg);
-});
-
-client.on("ready", () => {
-    console.log("✅ Bot is READY!");
-    client.isBotReady = true;
-});
-
 client.login(process.env.DISCORD_TOKEN);
 
 setTimeout(() => {
