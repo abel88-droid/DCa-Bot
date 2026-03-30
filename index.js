@@ -318,11 +318,16 @@ console.log("📡 Attempting Discord connection...");
 console.log(`Token: ${process.env.DISCORD_TOKEN ? process.env.DISCORD_TOKEN.substring(0, 10) + "..." : "MISSING"}`);
 client.login(process.env.DISCORD_TOKEN);
 
-setTimeout(() => {
-    if (!client.isReady()) {
-        console.error("❌ FAILED: Bot did not connect. Possible causes:");
-        console.error("  - Invalid token");
-        console.error("  - Network/firewall blocking Discord");
-        console.error("  - Discord API issues");
+let attempts = 0;
+const checkInterval = setInterval(() => {
+    attempts++;
+    console.log(`[${attempts}] Checking connection status...`);
+    if (client.isReady()) {
+        console.log("✅ Bot is READY!");
+        clearInterval(checkInterval);
     }
-}, 35000);
+    if (attempts >= 7) {
+        clearInterval(checkInterval);
+        console.error("❌ Bot failed to connect after 35 seconds");
+    }
+}, 5000);
