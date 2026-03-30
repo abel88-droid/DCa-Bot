@@ -313,6 +313,14 @@ setInterval(() => {
 
 app.listen(PORT, () => console.log(`🌐 Web server running on ${PORT}`));
 
+// Test if we can reach Discord API
+const https = require("https");
+https.get("https://discord.com/api/v10/gateway", (res) => {
+    console.log("✅ Can reach Discord API:", res.statusCode);
+}).on("error", (err) => {
+    console.error("❌ Cannot reach Discord:", err.message);
+});
+
 // Single login call
 console.log("📡 Attempting Discord connection...");
 console.log(`Token: ${process.env.DISCORD_TOKEN ? process.env.DISCORD_TOKEN.substring(0, 10) + "..." : "MISSING"}`);
