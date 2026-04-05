@@ -21,7 +21,7 @@ module.exports = {
                 embeds: [{
                     color: 0xFF6600,
                     title: "🎉 1 Year Anniversary + Bot Update",
-                    description: "It's been 1 year! Thank you for being with us.\n\n**Bug Fixed**\nBot is back online with improvements.\n\n**Optimized**\nPerformance enhanced.",
+                    description: "It's been 1 year!🐉\n\n**Bug Fixed**\nBot is back online with improvements.\n\n**Optimized**\nPerformance enhanced.",
                     footer: { text: "Thank you for your patience and support!" },
                     timestamp: new Date()
                 }]
