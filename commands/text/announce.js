@@ -9,7 +9,7 @@ module.exports = {
             return message.reply("Only developers can use this command.❌ ");
         }
 
-        const announcementChannelId = "1364879132378529792";
+        const announcementChannelId = "1293490674884149329";
         const announcementChannel = message.client.channels.cache.get(announcementChannelId);
 
         if (!announcementChannel) {
