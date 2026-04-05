@@ -5,7 +5,7 @@ module.exports = {
         // developer role
         const developerRoleId = "1367467038737436712";
         
-        if (!message.member.roles.has(developerRoleId)) {
+        if (!message.member.roles.cache.has(developerRoleId)) {
             return message.reply("Only developers can use this command.❌ ");
         }
 
