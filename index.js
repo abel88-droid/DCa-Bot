@@ -8,15 +8,15 @@ process.on("unhandledRejection", reason => console.error("Unhandled Rejection:",
 process.on("uncaughtException", err => console.error("Uncaught Exception:", err));
 
 // Initialize YouTube Notifier with timeout protection
-// try {
-    // const youtubeNotifierPromise = Promise.resolve(require("./youtube/youtubeNotifier.js"));
-    // Promise.race([
-        // youtubeNotifierPromise,
-        // new Promise((_, reject) => setTimeout(() => reject(new Error("YT Notifier timeout after 10s")), 10000))
-     // ]).catch(err => console.error("❌ YouTube Notifier error:", err.message));
-// } catch (err) {
-    // console.error("❌ Failed to load YouTube Notifier:", err);
- // }
+try {
+    const youtubeNotifierPromise = Promise.resolve(require("./youtube/youtubeNotifier.js"));
+    Promise.race([
+        youtubeNotifierPromise,
+        new Promise((_, reject) => setTimeout(() => reject(new Error("YT Notifier timeout after 10s")), 10000))
+      ]).catch(err => console.error("❌ YouTube Notifier error:", err.message));
+ } catch (err) {
+     console.error("❌ Failed to load YouTube Notifier:", err);
+  }
 
 // Client Setup
 const client = new Client({
@@ -58,12 +58,16 @@ if (fs.existsSync(textCommandsPath)) {
     for (const file of textFiles) {
         try {
             const command = require(`./commands/text/${file}`);
-            if (command.name) {
+
+            // 🔧 FIXED PART (this is the only change)
+            if (command.name && command.execute) {
+                command.description = command.description || "No description";
                 client.commands.set(command.name, command);
                 console.log(`✅ Loaded text command: ${command.name}`);
             } else {
-                console.warn(`⚠️ Missing command name in ${file}`);
+                console.warn(`⚠️ Invalid command in ${file}`);
             }
+
         } catch (err) {
             console.error(`❌ Error loading text command ${file}:`, err);
         }
