@@ -21,14 +21,34 @@ A private, multipurpose Discord bot with advanced moderation tools, YouTube vide
 
 ## Dashboard
 
-A minimal, frontend-only dashboard that uses the **GitHub API** to directly manage the YouTube feed (`feeds.json`) for auto-posting. No backend server required!
+The bot now serves an admin dashboard from the same Express server:
+
+- `/dashboard` - Discord OAuth protected control panel
+- `/api/dashboard/config` - authenticated settings API
+- `/auth/discord` - Discord sign-in
+
+Dashboard access is limited to users who have the configured Discord role in the configured guild. Set these environment variables before using it:
+
+```env
+DISCORD_CLIENT_ID=your_discord_application_id
+DISCORD_CLIENT_SECRET=your_discord_oauth_secret
+DISCORD_GUILD_ID=your_server_id
+DASHBOARD_ALLOWED_ROLE_ID=role_that_can_open_dashboard
+DASHBOARD_BASE_URL=https://your-render-app.onrender.com
+DISCORD_REDIRECT_URI=https://your-render-app.onrender.com/auth/discord/callback
+DASHBOARD_SESSION_SECRET=a_long_random_secret
+DASHBOARD_CONFIG_PATH=/var/data/dashboardConfig.json
+```
+
+Add the same redirect URL in the Discord Developer Portal under OAuth2 redirects.
+If your host has an ephemeral filesystem, point `DASHBOARD_CONFIG_PATH` at a persistent disk path.
 
 
 ## Tech Stack
 
 - **Bot Framework:** Discord.js
 - **Database:** Neon (PostgreSQL)
-- **Dashboard:** Next.js + GitHub API
+- **Dashboard:** Express + vanilla HTML/CSS/JS
 - **Hosting:** Render (Bot) | Vercel (Dashboard)
 
 ## Contributors

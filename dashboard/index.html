@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>DCA Bot Dashboard</title>
+    <link rel="stylesheet" href="/dashboard/styles.css">
+</head>
+<body>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="brand">
+                <span class="brand-mark">DCA</span>
+                <span>
+                    <strong>Bot Control</strong>
+                    <small id="guildName">Dashboard</small>
+                </span>
+            </div>
+
+            <nav class="nav-tabs" aria-label="Dashboard sections">
+                <button class="nav-tab active" data-tab="welcome" type="button">Welcome</button>
+                <button class="nav-tab" data-tab="reactionRoles" type="button">Reaction Roles</button>
+                <button class="nav-tab" data-tab="access" type="button">Access</button>
+            </nav>
+        </aside>
+
+        <main class="main">
+            <header class="topbar">
+                <div>
+                    <p class="eyebrow">Discord Alliance</p>
+                    <h1>Server Automation</h1>
+                </div>
+                <div class="topbar-actions">
+                    <span id="saveState" class="save-state">Idle</span>
+                    <button id="syncButton" class="secondary" type="button">Sync Messages</button>
+                    <button id="saveButton" class="primary" type="button">Save Changes</button>
+                </div>
+            </header>
+
+            <div id="alert" class="alert hidden" role="status"></div>
+
+            <section id="loginView" class="auth-view hidden">
+                <div class="auth-panel">
+                    <p class="eyebrow">Restricted</p>
+                    <h2>Sign In With Discord</h2>
+                    <p id="authMessage">Only Discord accounts with the configured access role can open these controls.</p>
+                    <a id="loginButton" class="primary link-button" href="/auth/discord">Sign In</a>
+                </div>
+            </section>
+
+            <section id="dashboardView" class="dashboard-view hidden">
+                <section class="status-grid" aria-label="Dashboard status">
+                    <div class="status-item">
+                        <span>Bot</span>
+                        <strong id="botStatus">Checking</strong>
+                    </div>
+                    <div class="status-item">
+                        <span>Signed In</span>
+                        <strong id="signedInUser">Unknown</strong>
+                    </div>
+                    <div class="status-item">
+                        <span>Last Saved</span>
+                        <strong id="lastSaved">Unknown</strong>
+                    </div>
+                </section>
+
+                <form id="configForm">
+                    <section class="settings-section active" data-panel="welcome">
+                        <div class="section-heading">
+                            <div>
+                                <p class="eyebrow">Join and leave</p>
+                                <h2>Welcome Messages</h2>
+                            </div>
+                        </div>
+
+                        <div class="form-grid two">
+                            <label class="toggle-row">
+                                <input id="welcomeEnabled" type="checkbox">
+                                <span>Welcome Enabled</span>
+                            </label>
+                            <label class="field">
+                                <span>Welcome Channel</span>
+                                <select id="welcomeChannel"></select>
+                            </label>
+                        </div>
+
+                        <label class="field">
+                            <span>Welcome Message</span>
+                            <textarea id="welcomeMessage" rows="11"></textarea>
+                        </label>
+
+                        <div class="form-grid two">
+                            <label class="toggle-row">
+                                <input id="leaveEnabled" type="checkbox">
+                                <span>Leave Enabled</span>
+                            </label>
+                            <label class="field">
+                                <span>Leave Channel</span>
+                                <select id="leaveChannel"></select>
+                            </label>
+                        </div>
+
+                        <label class="field">
+                            <span>Leave Message</span>
+                            <textarea id="leaveMessage" rows="4"></textarea>
+                        </label>
+                    </section>
+
+                    <section class="settings-section" data-panel="reactionRoles">
+                        <div class="section-heading">
+                            <div>
+                                <p class="eyebrow">Self-service roles</p>
+                                <h2>Reaction Roles</h2>
+                            </div>
+                            <button id="addReactionGroup" class="secondary" type="button">Add Message</button>
+                        </div>
+
+                        <div id="reactionRoleList" class="reaction-list"></div>
+                    </section>
+
+                    <section class="settings-section" data-panel="access">
+                        <div class="section-heading">
+                            <div>
+                                <p class="eyebrow">Security</p>
+                                <h2>Access</h2>
+                            </div>
+                            <button id="logoutButton" class="danger" type="button">Sign Out</button>
+                        </div>
+
+                        <div class="access-grid">
+                            <div class="access-row">
+                                <span>Discord Account</span>
+                                <strong id="accessUser">Unknown</strong>
+                            </div>
+                            <div class="access-row">
+                                <span>OAuth Setup</span>
+                                <strong id="oauthStatus">Checking</strong>
+                            </div>
+                            <div class="access-row">
+                                <span>Bot Connection</span>
+                                <strong id="accessBot">Checking</strong>
+                            </div>
+                        </div>
+                    </section>
+                </form>
+            </section>
+        </main>
+    </div>
+
+    <template id="reactionGroupTemplate">
+        <article class="reaction-card">
+            <div class="reaction-card-header">
+                <label class="toggle-row compact">
+                    <input data-role="enabled" type="checkbox">
+                    <span>Enabled</span>
+                </label>
+                <button class="ghost danger-text" data-action="remove-group" type="button">Remove</button>
+            </div>
+
+            <div class="form-grid two">
+                <label class="field">
+                    <span>Name</span>
+                    <input data-role="name" type="text" maxlength="80">
+                </label>
+                <label class="field">
+                    <span>Channel</span>
+                    <select data-role="channel"></select>
+                </label>
+            </div>
+
+            <label class="field">
+                <span>Message</span>
+                <textarea data-role="message" rows="5"></textarea>
+            </label>
+
+            <div class="options-heading">
+                <span>Reactions</span>
+                <button class="ghost" data-action="add-option" type="button">Add Role</button>
+            </div>
+            <div class="option-list"></div>
+        </article>
+    </template>
+
+    <script src="/dashboard/app.js" defer></script>
+</body>
+</html>

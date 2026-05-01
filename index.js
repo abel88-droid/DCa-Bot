@@ -2,6 +2,11 @@ const { Client, GatewayIntentBits, Collection,Partials } = require("discord.js")
 const fs = require("fs");
 const path = require("path");
 require("dotenv").config();
+const { registerDashboardRoutes } = require("./utils/dashboardRoutes");
+const {
+    ensureReactionRoleMessages,
+    handleReactionRole: handleDashboardReactionRole
+} = require("./utils/reactionRoleManager");
 
 // Error handlers
 process.on("unhandledRejection", reason => console.error("Unhandled Rejection:", reason));
@@ -180,53 +185,21 @@ client.once("ready", async () => {
     console.log(`✅ Logged in as ${client.user.tag}`);
     console.log(`========================\n`);
 
-    console.log("ℹ️ Starting reaction role scripts...");
+    console.log("ℹ️ Syncing dashboard-managed reaction role messages...");
 
     try {
-        const reactionRolesUnlock1 = require("./events/reactionRoles_unlockchannel1.js");
-        const reactionRolesUnlock3 = require("./events/reactionRoles_unlockchannel3.js");
-        const reactionRolesPECall = require("./events/reactionRoles_PEcall.js");
-        const reactionRolesGCcall = require("./events/reactionRoles_GCcall.js");
-        const reactionRolesTournament = require("./events/reactionRolesTournament.js");
-        const reactionRolesRules = require("./events/reactionRoles_Rules.js");
-
-        // Setup with timeout protection
-        const rolePromises = [
-            Promise.resolve(reactionRolesUnlock3.execute(client)),
-            Promise.resolve(reactionRolesPECall.execute(client)),
-            Promise.resolve(reactionRolesGCcall.execute(client)),
-            Promise.resolve(reactionRolesTournament.execute(client)),
-            Promise.resolve(reactionRolesRules.execute(client))
-        ];
-
-        const results = await Promise.race([
-            Promise.all(rolePromises),
-            new Promise((_, reject) => 
+        const sync = await Promise.race([
+            ensureReactionRoleMessages(client),
+            new Promise((_, reject) =>
                 setTimeout(() => reject(new Error("Reaction role setup timeout after 20s")), 20000)
             )
         ]);
 
-        client.reactionRoleMessages = {
-            unlockMsgId: results[0],
-            peCallMsgId: results[1],
-            gcCallMsgId: results[2],
-            tournamentMsgId: results[3],
-            rulesMsgId: results[4]
-        };
-
-        await reactionRolesUnlock1.execute(client);
-
-        console.log("✅ Reaction role scripts done.");
+        const syncedCount = sync.results.filter(result => !result.skipped).length;
+        console.log(`✅ Reaction role sync done (${syncedCount} messages).`);
     } catch (err) {
         console.error("❌ Reaction role script error:", err.message);
-        // Initialize with empty object to prevent crashes
-        client.reactionRoleMessages = {
-            unlockMsgId: null,
-            peCallMsgId: null,
-            gcCallMsgId: null,
-            tournamentMsgId: null,
-            rulesMsgId: null
-        };
+        client.reactionRoleMessageMap = new Map();
     }
 });
 
@@ -242,45 +215,17 @@ client.on("error", err => {
 });
 
 // Universal reaction-role handler
-const handleReactionRole = async (reaction, user, add) => {
-    if (user.bot || !client.reactionRoleMessages) return;
-
-    let roleId = null;
-
-    if (reaction.message.id === client.reactionRoleMessages.unlockMsgId) {
-        roleId = "842089922768797726";
-    } else if (reaction.message.id === client.reactionRoleMessages.peCallMsgId) {
-        roleId = "840250757235212339";
-    } else if (reaction.message.id === client.reactionRoleMessages.gcCallMsgId) {
-        roleId = "1026142060937498685";
-    } else if (reaction.message.id === client.reactionRoleMessages.tournamentMsgId) {
-        if (reaction.emoji.name === "🏁") roleId = "963429908619616286";
-        if (reaction.emoji.name === "🏞️") roleId = "1103695688363159572";
-    } else if (reaction.message.id === client.reactionRoleMessages.rulesMsgId) {
-        roleId = "1345651591583367168";
-    }
-
-    if (!roleId) return;
-
-    try {
-        const member = await reaction.message.guild.members.fetch(user.id);
-        if (add) {
-            await member.roles.add(roleId);
-        } else {
-            await member.roles.remove(roleId);
-        }
-    } catch (err) {
-        console.error("❌ Role modify error:", err);
-    }
-};
-
-client.on("messageReactionAdd", (r, u) => handleReactionRole(r, u, true));
-client.on("messageReactionRemove", (r, u) => handleReactionRole(r, u, false));
+client.on("messageReactionAdd", (r, u) => handleDashboardReactionRole(client, r, u, true));
+client.on("messageReactionRemove", (r, u) => handleDashboardReactionRole(client, r, u, false));
 
 // Express keep-alive server
 const express = require("express");
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+app.set("trust proxy", 1);
+app.use(express.json({ limit: "256kb" }));
+registerDashboardRoutes(app, client);
 
 app.get("/", (req, res) => {
     res.json({
