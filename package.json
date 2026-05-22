@@ -1,0 +1,19 @@
+{
+  "name": "dca-bot",
+  "version": "1.0.0",
+  "description": "A Discord bot built using discord.js",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.15.0",
+    "pg": "^8.11.1",
+    "dotenv": "^16.0.3",
+    "tslib": "^2.6.2",
+    "rss-parser": "^3.12.0",
+     "google-spreadsheet": "^3.3.0",
+     "express": "^4.18.2",
+     "ms": "^2.1.3"
+  }
+}
